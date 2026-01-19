@@ -1,0 +1,7 @@
+node_modules/
+*.log
+.DS_Store
+public/js/*.js
+public/js/*.d.ts
+public/js/*.js.map
+*.tsbuildinfo

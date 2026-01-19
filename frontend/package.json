@@ -1,0 +1,18 @@
+{
+  "name": "pdf-parser-frontend",
+  "version": "1.0.0",
+  "description": "TypeScript frontend for PDF Lecture Parser API",
+  "main": "index.html",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "dev": "tsc && npx http-server public -p 3000 -o"
+  },
+  "keywords": ["pdf", "parser", "typescript"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "http-server": "^14.1.1"
+  }
+}

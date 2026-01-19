@@ -1,0 +1,1476 @@
+[Automatisch gegenereerde transcriptie. Ter verduidelijk kunnen wijzigingen zijn aangebracht.]
+So before I start talking about, uh, Gabor filters and what they are, um.
+
+Pointer seems to. Okay. Um.
+
+I want to say something about, uh, scientific jargon.
+
+So, uh, I been doing I've been doing computer science since I was 14.
+
+So I use a lot of terms that come with computer science and come with using, uh, programming.
+
+If you don't know a term, I just want you to raise your hand and be like, hey, I have no idea what you're talking about.
+
+What do you mean by this term? Because then you actually understand more of the lecture.
+
+And the goal of these lectures is that you should be able to understand the content that's in the slides throughout these two hours of the lecture,
+
+and then hopefully not have to sit at home and go over them again.
+
+So try to ask as much as possible during the lecture so you can at least get something out of it by being here, present in the in the room.
+
+Um, if you don't feel comfortable raising your hand and asking, uh, what a word means, you can also just, uh, send it via email.
+
+Just send me a list of. These are all the words you said during the last lecture, and I didn't know what they meant.
+
+And then I'll keep that in mind for for next time and try to explain those.
+
+Um, today we're going to talk about governor filters. And for that, uh, maybe already I'm going to ask you what is a filter?
+
+Governor is a name. It's the person that created the filters.
+
+But does any of you know what what a filter is?
+
+Moves certain frequencies from a picture or.
+
+Yeah, but what is it? So this does what it does. Yeah.
+
+It's a matrix modification to an. Um, it's a matrix modification.
+
+Yeah. So, uh. Well.
+
+Yeah. So the values that are a in an image are altered by the matrix of numbers.
+
+Yeah. So a filter is a matrix of numbers if it's this correct.
+
+Um you typically use it in operations such as convolution or correlation.
+
+It's also synonymous with kernel. So if you use uh deep learning model then typically the filters in a deep learning layer are called kernels.
+
+Um, and today we're going to talk about a special type of filter.
+
+And that's this Gallagher filter. But before I go into the, uh, the whole Gabor filter, uh, topic, I want to ask, um.
+
+One second. The pointer refuses to to cooperate.
+
+Come on. Should I click here?
+
+Huh? Okay. Now it wants to work again.
+
+Um, we had, uh, reading material for this lecture.
+
+Did any of you have time to to look over the reading material?
+
+Yeah. More or less. Okay. Um.
+
+So before I talk about, uh, uh, Gerber filters, we have to go a bit into a recap on,
+
+uh, free transform because it builds on the concept of free transform.
+
+So that's something you discussed about, I believe, uh, lecture ago.
+
+Um, what does a Fourier transform do intuitively?
+
+Any thoughts? Like what? What do we do with the Fourier transform?
+
+Yes, it will change the frequencies. We transform signals into frequencies.
+
+Or any other thoughts more precisely. We decompose the signal into its component frequencies.
+
+Indeed. That's that's, uh. Correct. Yeah. You can also go the other way around so it can signal other things.
+
+You can also do it the other way around. That's true. Yeah. You can create, for example, a song or something out of combining different frequencies.
+
+That's true. Um.
+
+And how do you do that? Precisely. Like, what do you do to to apply for your transform to a signal?
+
+No, no. Clear, clear idea on how we do that.
+
+Let's see if, um. If we get a more clear idea.
+
+Um, so what Fourier transform does is. Imagine this is your, your time domain.
+
+So now we're talking about 1D signal. We're going to talk about images later on.
+
+Um this is your time domain. And you have this blocky signal.
+
+And what you want to do is indeed you want to find what are the frequencies that create the signal.
+
+And you do that by approximating the signal with a linear combination of sinusoids.
+
+So these are sinusoids in, in, uh, blue and in green and in red and in orange.
+
+And they all have different frequencies. And then you say how much of, of the green wave do I have to put into the signal?
+
+How much of the red wave do I have to put to be able to create back the signal that I started with?
+
+So that's what Fourier transform intuitively does.
+
+It's it's creates this combination of sinusoids that approximates the the signal and typically Fourier transform, of course.
+
+Uh, it's the continuous Fourier transform goes up to an infinity of this, this sinusoids.
+
+But in practice when we work with computers we use discrete Fourier transform.
+
+So then it's an approximation of a signal as good as possible.
+
+Um. So.
+
+As I said in in the previous slide, what we do is we decompose the input signal into, uh, sinusoids and we do the same thing with images.
+
+So that was for 1D signal. And this is for, uh, an image.
+
+And then for an image. The Fourier transform is a two dimensional transform, not a one dimensional transform.
+
+So for example, if I have a purely greyscale image.
+
+The Fourier transform of it will just be, uh, the zero zero component.
+
+It will be the average of the image, pretty much.
+
+Um, if you have an image that contains one sinusoid that varies along the x axis, um, then you're going to have two points around the centre.
+
+So this is the zero zero component in the Fourier transform. And this is a certain frequency.
+
+And then the mirrored one because Fourier transform is um symmetric domain.
+
+So it is symmetric uh around zero zero.
+
+So that's why you have the mirrored uh version of this frequency.
+
+That's the frequency of this sinusoid. The same thing if you have a, uh, sinusoid that goes along the, uh, vertical direction along the Y direction,
+
+then you have two frequencies along the, uh, the vertical direction.
+
+It's actually the mirrored the actual frequency in the mirrored version of it.
+
+And then if you have a blocky pattern, then you would get, uh, a little, uh, cross,
+
+uh, of, of dots from the two combined frequencies and they're mirrored versions.
+
+What is the distance between these points? How far they are?
+
+Do you have an idea why? Why are these three points further away than this?
+
+Three points here, for example. Yeah.
+
+Yeah, exactly. So this is the zero zero frequency.
+
+This has a low frequency. A low frequency means it changes slowly.
+
+A high frequency means it changes very fast. This has a higher frequency.
+
+It changes a lot faster from black to dark, uh, from black to white and back.
+
+So then it's further away from the zero zero component.
+
+And now a bit of smart. Don't get scared about it.
+
+I'm going to try to explain to you the actual formula.
+
+So when you apply the the Fourier transform, you're actually moving into a different coordinate system.
+
+So you're initially in the x y coordinate system.
+
+You're in the image coordinate system typically images when you're in codomain computers you have the zero zero uh coordinate the the top left corner.
+
+And you have the an m in this case n minus one m minus one.
+
+Because we start counting from zero at the bottom right corner.
+
+And then when we move to the Fourier domain, all of a sum of the zero zero is here.
+
+And we also don't call it x and y anymore. We call it u and v to avoid a confusion,
+
+because then the coordinates of the Fourier transform of the Fourier domain are not pixel coordinates anymore.
+
+They are frequencies. So every point in the Fourier domain represents a certain frequency.
+
+Um, and if you look at the, the formula here, uh, you have the Fourier transform at the certain you, the frequency combinations.
+
+So like column row. So a certain point here in the, in the Fourier domain, uh, it's actually a sum over x and y's in the image domain.
+
+So you're actually going over the complete image. You're going over all the pixels in your image.
+
+And then you're doing this weighted combination of your images and those pixels with this e to the power I minus uh two pi something something.
+
+Um, and that's the Fourier transform. And what's this thingy here in green?
+
+Does this anyone know what this is to the power minus two pi stuff is.
+
+Yeah. So the real application. Yeah, yeah.
+
+So if you remember the sampling lecture there, we talked a bit about Euler uh formula.
+
+And this is actually the equivalent uh it's the Euler's equivalent of sines and cosines.
+
+So it's this is an imaginary plus uh a real part.
+
+And then we can actually see it, um, written in uh, the equation.
+
+So indeed it's a complex number. So that's also something to note about.
+
+Free transform actually gives you back complex numbers.
+
+It gives you a number at every, uh, location in the frequency domain on the grid with the real and an imaginary part.
+
+And then if you remember this, this slide from the, uh, the sampling lecture there, we talked about.
+
+Well, if I have a complex numbers that equals a plus B I.
+
+Then Euler's formula says that I can also write the same number as our cost.
+
+Plus I seen that. So that's that's how to to to realise why.
+
+Why does uh. Of rituals for become a combination of of sines and cosines.
+
+And why do I say well, when we I want to approximate the signal, we're actually, uh, um, creating these linear combinations of science and cosines.
+
+It actually comes from the actual formulation of, of how Fourier transform is defined, is defined us as this e to the power minus two pi here.
+
+And that's actually sine plus cosine. So that's that's why we're approximating a signal with sinusoids.
+
+So we have the we have the, uh, complex numbers.
+
+Um, and we saw that this can be written with Euler's formula into um.
+
+Sines and cosines. So that means we can also write the Fourier transform like this.
+
+We can also write it as cos of this thingy here minus I sin sine of this thingy here.
+
+This the same formulation. It's equivalent. Um, and now I'm going to go a bit and try to build a bit of intuition of what Freya does over images.
+
+So, for example, here, uh, we're in the Fourier domain.
+
+So this is the, the u axis. And this is the v axis.
+
+And then you have sinusoids across the, the, the, in the U direction and in the V direction.
+
+Um, and these are all complex numbers.
+
+So that means they have a real part and an imaginary part.
+
+So at every point in the Fourier domain you have a complex number.
+
+So f of u and v is actually a complex number which means it has a cos in a sine.
+
+And the cos in the sign correspond to a sinusoid with a certain frequency, and the frequency is given by u and v.
+
+So it's the frequency on the x direction. Here you don't have any frequency in the y direction is constant.
+
+Here you have only frequency in the y direction. And you have no frequency in the x direction.
+
+And you have both frequencies in the x direction in the y direction.
+
+And that's how to understand the Fourier domain on images.
+
+Are there any words I've said so far or things I've mentioned that that's or confusing or.
+
+You are not familiar with. Okay. Then I'm going to ask you to.
+
+Okay. There was another thing I wanted to mention. People typically refer to this.
+
+This. This thing is here as sinusoids. And you're going to be like, yeah, but it's of course in sound.
+
+Why do we call them sinusoids? Well, that's because actually you can convert a course into a sine there.
+
+This there's a correspondence formula. So you could just say okay.
+
+It's all signs. In my perspective it's just a two pi shift uh, in the angle.
+
+So who cares? I can just say it's just a combination of shifted signs.
+
+Um, so I'm going to do a little quiz to see how much of, of of this, uh, freest stuff uh, we got or how much intuition we have about the freedom.
+
+So I'd like you to match the images here with the their Fourier correspondence.
+
+Uh, uh, below. So let's start with image one.
+
+Which one of the the Fourier components do you think it belongs to that?
+
+Uh, image one. And I thought it's.
+
+See. Okay. Um.
+
+That's correct. But I shouldn't say that because now you have less options to guess.
+
+Wrong. Uh, in which, uh, to. What would it be?
+
+Any other thoughts? Somebody else wants to guess.
+
+What would be the corresponding, uh, image?
+
+Maybe because it seems more complex. It seems more complex.
+
+Um. Yeah, yeah.
+
+And then of course, then we have imagery that then is left over with, with uh Fourier.
+
+So you can expect these kind of questions in the exam.
+
+Just, just a heads up. It's something that, that you have to get a bit, uh, accustomed to.
+
+How do you interpret the, uh, correspondence between an image and its Fourier component?
+
+And indeed, what you can see here is that there's a lot of, uh, frequencies along this direction.
+
+And that's what you see here also. Right? So you have a lot of sinusoids with different frequencies, but they are all under the same orientation.
+
+So that's that's what gives up. So I would have guessed this one first.
+
+And then this one is similar to this one. But then it goes in two directions.
+
+Right. Because you have the bricks that go have edges in both directions.
+
+And then this one is a bit of a combination of a whole bunch of directions.
+
+So you have like variations in the image that goes across multiple, uh, sinusoid directions.
+
+So that was the, uh, the little quiz.
+
+Um, and I believe in the, uh, in the Friday lecture, you also talked about magnitude and phase of, uh, Fourier transform.
+
+Uh, what does the magnitude of the free transform encode?
+
+So what? What does it mean? The weights be assigned to each side?
+
+Yeah, yeah. Actually, it's just very good. So it's indeed it's how much each sinusoid contributes to create back the the, uh, original signal.
+
+So how important is this specific sinusoid in in creating in approximating the signal that we want to approximate.
+
+Because in the end, with discrete Fourier transform, we want to approximate, um, a signal with a combination of sinusoids.
+
+Um, yes. So that's how much each.
+
+So it contributes to the, the, uh, to create the whole image and the face.
+
+What does the face, uh, encode?
+
+And it does. This is a bit more difficult, I have to say. I myself find it very difficult to get a bit of intuition about the face, so it's, uh,
+
+it's hard to visualise it in your in your heads mind because with, with magnitude it's clearer.
+
+Okay. It's, it's how important this sinusoid is. But with face like what's what's face.
+
+Any thoughts? What does the face do? You could.
+
+There are no wrong answers, guys. So, like, you can just say whatever crosses your mind and then we're going to think about it.
+
+Yeah. Uh, I mean, the phase, uh, is responsible for shifting, uh, sincerely.
+
+So maybe it's responsible for shifting. Also where the data is on the original image.
+
+Um, I think I think you're very close to to getting an indication of of what exactly the face does or indeed,
+
+I believe this is the picture you also saw in in the lecture.
+
+Of course, I just added colours to it, but the face is indeed a shift into where the sinusoid starts.
+
+Um, and what you have to think about is when you approximate an image as a combination of sinusoids, you're in the first line.
+
+I have to, uh, go back to the first, uh, slide where I showed the 1D signal, because it's easier to think about any one of these signals here.
+
+They all start with the same point, right? Oh, actually, no, this one starts at a different point.
+
+So they don't all start down. They don't all start with the sinusoids at zero zero.
+
+So it's not a scene of zero plus something.
+
+Uh it's actually plus something. So um, you may want different sines, so different of the sinusoids to start at a different point along the side.
+
+Because then when you add them together, then you can create different variations in your pattern.
+
+And it's the same thing with images when you start this, this design.
+
+So you shift them. So they start with the different point and then the 00.
+
+Then you actually can generate different factors in your approximation.
+
+So that's the risk for me. That's that's the way to, to think about uh phase that it's, it's where these um, sinusoids line up relative to each other.
+
+Such that they can, uh, approximate the the image that we want to approximate.
+
+So how do they align relative to each other? And then when we add them together, we should be able to recover back to the image.
+
+Okay. Um. I'm going to ask a bit more of a mathematical question.
+
+Um, how do we compute the magnitudes or also called the amplitude of the Fourier uh, transform?
+
+And it it's. So if I want to know what's the magnitude of this Fourier transform, I've done the Fourier transform with the formula.
+
+I get this complex numbers of every few of the frequencies in the Fourier domain.
+
+And then I want to compute the magnitude.
+
+So I want to know, as I said before, how many or we deduce together how much every sinusoid uh contributes to uh to uh the original image.
+
+So I want let's say I would want to know what are the the biggest five frequencies in my signal.
+
+How do I do that? How do I find out which are the top five?
+
+Uh, frequencies in my signal. So I need the magnitude for that.
+
+Any thoughts? No.
+
+Um, do you guys know how to compute the magnitude of a complex number?
+
+Yeah. How do you do that?
+
+The square root of the real part squared, plus the imaginary parts.
+
+Precisely. That's exactly it. And that's exactly how we compute the the, uh, magnitude of the Fourier transform.
+
+So it's, it's the, the absolute value of this, uh, complex number,
+
+which is like the real part squared plus the imaginary squared and the square root of it.
+
+So that's this, uh, magnitude value. And that's what we typically visualise.
+
+So typically when at least in the computer vision, when we say we're going to take the Fourier transform of an image, we actually.
+
+Look at the Fourier magnitudes. We don't look at the Fourier phase typically.
+
+And complex numbers are hard to visualise. So we have to make some kind of choice to visualise them.
+
+But it's typically the um for the magnitude that we, we work with.
+
+Uh, how about the face? Does anyone have any idea how you would compute the face of the Fourier transform?
+
+You can really just guess stuff. It doesn't have to be the perfect answer.
+
+Just some thoughts. If. This imaginary part.
+
+You said just. Yeah, yeah yeah yeah. People use them.
+
+Yeah, yeah, let me think. So the face was was how much this this sign was shifted and that was coming.
+
+Let me see if I can give you a hint how much design was shifted.
+
+That was coming under here, right under the angle of the cosine and the sine.
+
+Right. So. So if I have, um.
+
+If I have a different starting point of design, then I will shift the angle with a certain value.
+
+And that will move the sign to a different starting point.
+
+Because then if. If, you know, sign off zero is actually zero.
+
+So that means this this it starts at a black point.
+
+And sine of uh, 90 degrees is one. So that means it starts at the one point when it's at 90 degrees.
+
+So if you want your sign to start at the different point along the curve, you have to shift the angle.
+
+So how would I compute the face then, knowing that it has to do with shifting the angle?
+
+Any thoughts? So it is an angle.
+
+So we're going to try to compute the angle of the Fourier transform because that's how we compute the face.
+
+Um and that is. The arctangent of the imaginary part divided by the real part.
+
+And let me see if I have the slides from the sampling lecture where I can show that again.
+
+Yeah. Here. So imaginary part, uh, is a sign, and, uh, a real part is a cosine.
+
+And then if I divide sine by cosine. That is a tangent from trigonometry.
+
+And then if I take arctangent so I invert the tangent of this, then I get the angle back.
+
+That's the inverse of the tangent function. And that's how I can compute the phase is by just taking the arctangent of sine divided by cosine.
+
+In the free domain. Some of the Fourier uh values. And that gives me the phase.
+
+And the face looks like this. It's it's not very informative.
+
+It's it's hard to to figure out what's in there. It's pretty much says at every frequency in this Fourier domain, uh, at every UV frequencies.
+
+How much do I have to shift this sine such, uh, that I can reconstruct the, uh, original signal, the original image, um,
+
+I believe in in the lecture of corn, you actually saw some examples of when you, um, set the magnitude to one everywhere.
+
+So you said this, um. This magnitude values here.
+
+You said them to one. So there's no preference for a certain sinusoids to contribute more than another sinusoid.
+
+Uh, and then you you have only the phase information left over.
+
+So you only have the angle of the sinusoids that's left over,
+
+and then you convert back into the image domain, and then you, you get some kind of edge information back.
+
+And if you do the same thing with the other way around.
+
+So if you would actually set the face everywhere to a constant.
+
+So say, uh, it's all, uh, once everywhere, and then I keep only the magneto, so I only keep how much the science contributes.
+
+Then you actually don't get anything back. You just get noisy, uh, a noisy image back.
+
+So actually, the phase information does contain some kind of, um,
+
+information about the edges in the image or how, you know, so it's aligned with the edges in the image.
+
+But it's global information again, because we're looking over the whole image to,
+
+to compute the values of every, uh, at every point here in the frequency domain.
+
+And that brings me to my next question.
+
+Looking at the Fourier transform. Can we say something about the frequencies present, for example, here in it?
+
+Let's say I'm really curious about. I have some, some, some application in mind.
+
+And I really want to know what are the frequencies present in the sky area of, of this image.
+
+Could I find him back here? Yeah. I don't think there's a lot.
+
+Why not? Do you? I do. You're right. Yes, that's.
+
+That's a good answer. Indeed. There's not much information about where these pixels are here.
+
+Because it's not, uh, proposition. Uh, what do you mean by focusing on the centre?
+
+Like, uh, my kitchen. Well, I'm not sure.
+
+Yeah. No, it's, uh. It's a good answer. So, um, if I look back here, the aim is to remember what this free domain was.
+
+We actually changed the axis we have use and vs here is year zero zero.
+
+And then use in. These are the how much of each of these sinusoids are in the image and how they have been shifted with respect to the image.
+
+But these are computed over the uh, the complete image, uh, um, uh, pixels.
+
+So if I just want to say something about the pixels here in the top area in the sky, I don't, I don't know where these pixels are here.
+
+I don't know in which bin of frequency they fell, so to say.
+
+So I cannot say okay. They fell in in this bin and in this other bins of the frequencies are three and seven or something.
+
+Um, and to give a bit of a more, uh.
+
+Um. Mathematical explanation of why this is the case is just going back to the, uh, the, uh, uh, Fourier formula.
+
+So. I have here for every U and V, so for every point, for every frequency being in my Fourier domain,
+
+for every x, y coordinate in my fria domain, I have a summation over all the pixels in the image.
+
+So actually all the pixels in the image contribute to a single point in.
+
+Uh. Let me see. Uh, if I have the picture to a single point here.
+
+So all the pixels here contribute to the value of, of a certain UV here.
+
+So therefore I cannot say where are the pixels, for example, here in the background.
+
+Where do they fall in in this area. Because they contributed to every single being here.
+
+So every single x you uh x your UV sorry coordinate.
+
+Do you guys understand what I mean by being when I say being?
+
+Yeah. So so I think of of the free a bit as, as the histogram.
+
+Do you guys know what a histogram is? Yeah. I think of it as a histogram where I count votes from from the image pixels.
+
+So every every image pixels sort of like votes.
+
+Uh, how much this specific sinusoid with this UV frequencies, uh, has contributed uh,
+
+to, to be able to actually, uh, recreate back to the original image.
+
+So how much one sinusoids matters.
+
+And that's. Yeah. Again average over the over all the the the xy points.
+
+So because of that, because it's it's averaged over all the x y points.
+
+The uh, uh, Fourier domain,
+
+we actually say the Fourier transform is a global transformation because of this sum over all the pixels is not a local transformation.
+
+It doesn't tell us something about the specific pixel. Um, do you guys know a local transformation?
+
+What would be a local transformation that we can apply. Yeah.
+
+Image image filtering. Exactly.
+
+Very good. Yeah. Yeah, indeed. So convolution. I think that's something you saw about two lectures ago.
+
+That is a local transformation. Can anyone explain to me why this is a local transformation as opposed to a global transformation?
+
+Yeah. That's in the cases that you. So the first.
+
+Yeah. Yeah. Exactly. So so it's it's because if I take this filter or kernel, however you want to call it,
+
+I apply it over the image, I apply it over every pixel in the image.
+
+Typically you would patch the image with zero. So you can make sure that you can apply it to every pixel in the image.
+
+So here is not bad. It's something I missed the the border uh pixels.
+
+But if you would padded then you would get back an output that it's exactly the same size as the input image.
+
+So it would be 4x4. And then for every pixel in the input image you have a value in the output image.
+
+So that is a local transformation because then it says something about that specific pixel.
+
+How that specific pixel together with its neighbouring pixels do something.
+
+How much do they resemble in this case a certain pattern.
+
+Do you guys know what this pattern is? Yeah.
+
+I know. Yeah. Uh, I'm actually not familiar with that, so.
+
+So you're you're you're confusing me.
+
+Maybe, you know, more. So. Okay.
+
+It's it's something intuitive that I'm trying to ask. If you look just at that, how the filter looks like, what do you think it would respond to?
+
+So. Yeah. Yeah, yeah.
+
+So it goes from, from, uh, bright to zero and then, then, um, to a minus one.
+
+So it goes, it finds an edge in the image.
+
+If I had something that varies from high to, to low values, the match.
+
+Okay. Okay. Great. So, um, going back to to, um.
+
+Yeah, maybe before I go here. Going back to, uh, to the problem that I started with.
+
+Uh, typically when we work with images, we want to say something about the regions in the images.
+
+We want to say something about what's the local information, not only the global information.
+
+So it's it's very useful. So Fourier transform is super useful in general image analysis.
+
+Uh, but a lot of times we want to say something about different parts of the image.
+
+And that's what the Gabor filters do. The Gabor filters allow us to, uh, look at the frequencies present in specific parts of the image.
+
+So it's sort of a localised version of the, uh, Fourier transform.
+
+And for that, I'm going to just shortly introduce the idea of, uh, a wavelet.
+
+So wavelet actually means a short wave. And Galois filters are wavelets, so they are short waves.
+
+And here's a sine wave. So this is what we would use uh, in a 1D uh, Fourier transform or the 2D sinusoid in the image case.
+
+Um, and a wavelet is a short version of this.
+
+So it's a version that it's all only has values in a, in a limited window.
+
+And for the rest it doesn't exist. It doesn't have values around it.
+
+And that's that's how you can think about, um, Gabor filters.
+
+Are there any questions from the first part?
+
+Before I go on to talk about governance filters.
+
+Are there things you want to ask or found and clear?
+
+I mean, the whole point of of being in a lecture hall, guys, is that you can raise your hand and be like, hey, I really didn't understand this part.
+
+Can you explain it again? Because it saves you time, then you don't have to go home and search it online and try to understand it from tutorials.
+
+We can just discuss it here and also probably there more people to have the same question that you do.
+
+So it's helping everyone if you just ask something that you didn't find clear.
+
+So please there to just. Yeah. So wait. So. Oh wait.
+
+But it's actually kind of compressing. But way to push through.
+
+Yeah. Yes. In theory the same information.
+
+No no, no. So it's, uh, a sine wave typically has like an infinite space.
+
+You can draw it and it just, it's periodic so it can go for infinity.
+
+Um, and a wavelet just takes the sine wave and squashes it into a limited space.
+
+So then you can actually fit it into a kernel, because that's why, uh, Gabor filters are kernels.
+
+Um, and then it has zero values outside of that kernel. So then we can just say, okay, this is the, uh, window, the kernel where we fit it in.
+
+It's all the values that are important. There are zero and the rest we don't care about because.
+
+Zero. Zero. Yeah. Any other questions?
+
+Also from the recap on the Fourier, Bart or freehand images or phase versus magnitude.
+
+No. Okay. Um.
+
+So, governor filters. Um.
+
+They give us localised frequencies. So as I said, they are they do the, the thing that we want.
+
+They, they give us sort of a frequency analysis but then on specific special localised parts of the image.
+
+So not uh globally across the whole image.
+
+And you can see the US and this is actually what they are, we're going to see the mathematical formulation as well.
+
+Um a sine wave. And this is how you can see it in the image domain.
+
+And now imagine that I just take uh, a cut through the, the image.
+
+And here red means uh, minus one and then blue means plus one.
+
+And then it goes up and down, up and down, up and down. And then I put a Gaussian hat so Gaussian kernel on top of this sine wave.
+
+And then what happens with the Gaussian. It has the zero values here outside of the hat and only values underneath this hat.
+
+So here again imagine I take a uh a cuts through this image.
+
+And that's what you see on top. And now if I multiply this with each other.
+
+I get a wavelet. I get a squashed sine wave that has values only underneath the Gaussian hat.
+
+And this is how it looks like. This is an example of a Gabor wavelet.
+
+Um, so one of the, the Gabor, uh, filter properties is that it gives us localised frequencies because it's build on size and designs have frequencies,
+
+and they are localised in the sense that we have a limited window in which we can draw them.
+
+So all the values here around, uh, the Gabor uh filter there are zero.
+
+So I actually can crop this away. I can crop the margins away and make the filter just the numbers that are non zero.
+
+And that's the, the window that I will work with. And then I can use this to convolve the image with just as you learned in the convolution lecture.
+
+And that will tell me how much of this sine frequency is a different location in the image by applying it,
+
+um, by applying it to a convolution operation.
+
+So here imagine I would have here my Gabor filter which is this squashed sine wave.
+
+And then I just convolve the image with this squashed sine wave.
+
+And I get at every pixel location in the image how much of this same frequency I have there.
+
+And then I can vary the frequency of my sine under the, uh, Gaussian hat.
+
+And we're going to see in a bit how we're going to do that. And then I can find out how much of different sine frequencies I have.
+
+So that's why we say, um, Gabor, give us localised frequencies.
+
+But next to giving us localised frequencies, the, the Gabor wavelets to also give us localised orientations.
+
+So I can take this, this sine wave now and I can rotate it with different angles,
+
+I can rotate it with 45 degrees and uh, I don't know what's here, uh, 30 degrees and and so on and so forth.
+
+So I can make different rotated versions of, of this.
+
+Um. Gabor filters. Does anyone have an idea of what would that give me?
+
+If I convolve the image with one of these rotated Gabor filters?
+
+What kind of information could extract from the the image?
+
+So I know that just doing a cover filter will tell me how much of of the a certain sine
+
+wave or sinusoid is present in a certain patch of the image where I apply the filter.
+
+And now if I rotate it. What the.
+
+What does it tell me? No.
+
+So. So this will, will respond to, um, certain patterns that have frequencies along a certain direction.
+
+So it's in the same thing as we saw in, in the Fourier domain when we were talking about,
+
+let's get a bit of an intuition about how Fria works on images.
+
+So if you remember this slide here, we had the X direction and uh, the uh sorry the, the other direction in the right direction in the Fourier domain.
+
+So the U frequency and the v frequency, the horizontal and vertical frequencies.
+
+And then we also have frequencies that have both horizontal, uh, sinusoids that have both horizontal and vertical frequencies.
+
+And that's the same thing with the, the the Gabor filter. If we rotate them we're also going to get combination of vertical and horizontal.
+
+Uh sinusoids. So it gives us a lot more descriptive power.
+
+Let's take a 15 minute break, and then we, uh, come back to the Gabor filters.
+
+[Automatisch gegenereerde transcriptie. Ter verduidelijk kunnen wijzigingen zijn aangebracht.]
+To the audience. Uh oh. Good. Okay.
+
+So, um. I said that we can use this.
+
+Before the break, I said we can use this Gabor filters to get localised frequencies, um,
+
+from the sinusoids and also get localised orientations by rotating it, uh, with different angles.
+
+And now we're going to go a bit into the actual definition of the Gabor filter.
+
+We're going to try to get a bit of an understanding of what the different parameters do, and how we can vary them.
+
+So this is the definition of the Gabor filter. It has two components to two exponentials multiplied with each other.
+
+Um, and my first question for you is, and it has a lot of parameters that we're going to talk about now.
+
+Uh, what is the green part look like to you?
+
+So I have this x bar squared, uh, plus gamma squared y bar squared divided by two sigma squared and all of that.
+
+It's under the exponential. Yeah, yeah, yeah.
+
+It looks like a Gaussian hat with with a certain, uh, sigma hair with a certain, uh, uh, length scale or bandwidth.
+
+Um, so what does this Sigma, uh, intuitively do?
+
+Yeah. Change the number.
+
+Yeah. Yeah. And then if we go back to the, uh, the image of the, uh, the Gaussian, like,
+
+how would you explain how will this change if I increase or decrease the sigma?
+
+Definitely increase the voltage. Because it's going to spread.
+
+Yeah. So the head will become bigger. It will become more.
+
+Spread it out. And then here there will be less zeros around this.
+
+It will be like a bigger area that's covered by the Gaussian.
+
+And if the sigma is smaller then it becomes uh, smaller.
+
+It becomes more squished. Yeah. So that's what, uh, the gosh, the, the the schema of the, the first component dates.
+
+And here's an example. So we have, uh, a certain, uh, Gabor initial Gabor wavelet.
+
+And now if I, uh, change the sigma here, I increase it.
+
+You can see how the filter changes. So it's just becomes a bigger resolution here is is drawn on the same, uh, size, uh, canvas on the same grid.
+
+But typically you would like just crop, uh, to the actual filter size so you don't do useless computations because anyway,
+
+multiplying with with zeros will not add anything in a convolution.
+
+So zero values don't count. Um, so that's the, the uh scale part.
+
+And then we have uh gamma components.
+
+So the gamma is under the same green area in the formula.
+
+So it's here it's gamma squared y squared.
+
+Any thoughts on what this could mean? What? What does it do if I change the gamma?
+
+What effect will it have on my Gabor filters? How you can do this.
+
+Let's go to the big machine. So the gamma is.
+
+Where does it come? It's on the green part, right?
+
+So. It's under the Gorshin hats.
+
+It's it's sort. Um.
+
+So we we agreed that this first part looks like a Gaussian.
+
+And then what it does, it scales the the x coordinates as opposed to the, uh, the sorry, the y coordinates as opposed to the x coordinates.
+
+So intuitively, if I would do that under a Gaussian, I would scale certain component of coordinates more than others.
+
+If I have this this is a tropic Gaussian. We call it when it's perfectly round.
+
+But then if I scale x or y, more than one happens to add to my Gaussian hat.
+
+So we're working on image is I think maybe that's that's a bit of a difficult switch to make in your head.
+
+It's it's not a one Gaussian. So it's not the, the little hat that I draw on top of the, the image, but it's actually a 2D Gaussian.
+
+Right. So it has a x component has a y component.
+
+So if I would scale one of the components more than the other under the Gaussian, what would happen?
+
+Yeah. Yeah, yeah, it won't be a perfectly round, uh, circle here.
+
+It will be, uh, a skewed, uh, squashed circle on the certain direction, depending on which one I scale.
+
+And how do I scale it? So that's that's what happens when we, uh, play with this gamma, uh, parameter.
+
+And here is an example I draw here though. Oops I draw here the uh, the Gaussian had as, uh, as uh mesh surface.
+
+And then here is when it's isotropic, that means round it, it means it varies with the same amount in all directions.
+
+And then here if I make gamma five, that means I will weigh the uh, y component a lot more than the x component.
+
+Then you see it gets a bump so it becomes squashed on the, on the, uh, so it gets actually it's not smaller, but it becomes higher on the Y component.
+
+And then, um, if I use 0.5, it becomes flatter on the y component, but it becomes uh,
+
+more uh, curved on the x component so it becomes more squashed in the other direction.
+
+So the gamma, uh, parameter of the, uh, Gabor filters, um, controls how this, this Gaussian hat squashes that, the, this, the sine wave underneath it.
+
+And because we're working with images, we can squash it on the x and y direction differently.
+
+So we can create sine waves with different, uh, uh, forms.
+
+And now I'm going to talk about the violet part under the Gabor filter.
+
+So we talked about Sigma and Gamma here.
+
+Uh and I'm going to talk about the parameters in the this this violet part here.
+
+What does this violet part look like to you? Yeah.
+
+Exactly. Yeah, yeah. So I think by now, you guys should be sick of seeing Euler's formulas everywhere.
+
+And the moment you see e to the eyes, something there's like, okay, it's as soon as.
+
+So it's, it's a cost plus a sine, it's a complex number.
+
+Also our filters are complex filters.
+
+So because of this, because of this thingy here, because of the purple part, that means they have a real and an imaginary part.
+
+The real part is the sign. The imaginary part is the cosine is the same story over again.
+
+And that's why I said Gabor filters are like a localised Fourier transform,
+
+because they have this part that you would have from the Fourier transform,
+
+but then they also have this, this, this Gaussian filter that allows it to be a kernel that you can convolve with.
+
+So the violet part looks like a, uh, sinusoid.
+
+And it has this gamma parameter.
+
+So if I changed the gamma parameter, one would happen.
+
+And any starts. What does this go parameters do.
+
+So it's it's it's affecting this x bar component here.
+
+Yeah. Any thoughts? Yeah, yeah, yeah.
+
+It will actually affect the frequency of the, um, the sinusoid part under the Gallagher filter.
+
+So here I show only the sinusoid part. I don't show the Gaussian.
+
+Hence I only showed the purple part. And then if I set lambda to one then it goes really fast up and down.
+
+If I said lambda two, then they need to go slower. If I set it to 100, it goes even slower, so it becomes completely smooth.
+
+So this this lambda parameter will say how much this the sinusoids will, will uh vary.
+
+So the wavelength or the, uh yeah.
+
+Frequency of this sinusoid. Um, and then we have under this purple part we have another parameter.
+
+This is this, uh, phi here. It's added to the, uh, the, uh, the uh, previous, uh, value.
+
+Any thoughts on what this Phi does? Yeah.
+
+Yeah. So? So can you say that in more words like it's, it's it's an angle the.
+
+Yeah. Yeah. And that says how the sinusoid is shifted, right?
+
+So, so the angle under this, this, um, under this, this part here, it's actually telling us how this the sinusoid should be shifted.
+
+So here I saw the example again only for the purple part.
+
+I showed the example. If I said this 5 to 0 and then if I set it to one and if I set it to two.
+
+And then you can see that the sinusoid starts at different points along the uh, its own, uh, uh, period.
+
+So it starts at the, uh, medium point here. It starts at the low point here, it starts here a bit higher up.
+
+So it actually varies where, where it starts.
+
+And then in, in the sinusoid. And that's that's called the phase offset.
+
+So this five here. And then uh I have uh yellow part.
+
+And I have to say this yellow part is very difficult because I'm not sure if you guys are familiar with this.
+
+Um, so note that when I create my Gabor filter.
+
+So these are the filters I'm going to go move the image with. It has all these parameters.
+
+And it's a it has values on x and y. So that's the grid on which I'm going to draw the filter.
+
+So I have I define a grid size I say okay I have a grid of 21 by 21 pixels.
+
+And then at every pixel xy in this grid I'm going to compute the value with this formula.
+
+And then um this x and y's.
+
+They actually only come into these formulas if you see by being transform for a.
+
+So I only use this x bar and y bar everywhere. And they transform with this yellow formula first.
+
+And the zero formula says x bar y bar equals this matrix of course that us
+
+in that um minus syntax that data and then multiplied with the original x y.
+
+So it's a transformation of this coordinates x y.
+
+Yeah, each pixel is different, so it's hard.
+
+So it's you know, so it was in the the purple part.
+
+That's that's the, the Euler's formula for cosine plus sign for complex numbers.
+
+Right. And and this part here, this is first before we do anything we transform our grid with this yellow part.
+
+And then we put it into the Gaussian and we put it into the sinusoids.
+
+So what do we do with our greeters? What are these x and y values?
+
+Any thoughts? This is a really cool, uh, matrix here.
+
+So I have to tell you guys, you have to remember this because it's a very useful matrix in general,
+
+if you want to do, uh, yourself some image transformations.
+
+It's a very great matrix to use.
+
+But do you have any thoughts what you could do by just looking at it so it has a cost that a sin theta minus synthetic costed.
+
+And then it does something with my points on the grid on which I'm going to draw this discover filter.
+
+But what could it do? Yeah.
+
+No one likes them. Um.
+
+Does it. Does it normalise them? But notice that there's a delta here.
+
+What was this? Delta? So what meaning does it have?
+
+It comes under the cross in the sign. It's an angle, right?
+
+So whenever you have a cost of something. Sign of something, it's an angle.
+
+Um, so what you're actually doing with this, this yellow, uh, matrix here is you're actually doing, uh, matrix rotation.
+
+And this is a great operation because this, this has been used in, in computer vision in a lot of algorithms.
+
+You can use it yourself. If you just take an image and you want to rotate it, you pick a theta, pick 45 degrees.
+
+You, uh. Right. This matrix of goes 45 degrees is same 45 degrees, -4545.
+
+And then for every x, y coordinate in your grid.
+
+So you go with x from zero to n, with y from zero to n you change all the coordinates with these values.
+
+Then you clip them to integer values, and then you write the intensity of those at the uh,
+
+from the x, uh, the original x, y at this location that you obtained from the multiplication.
+
+What you're going to get back is a rotated version of your image.
+
+So you just you change your greet, you change your x, y coordinates to a rotated version of their coordinates.
+
+And this is a standard. You have to remember this, this form of a matrix, whenever you're going to see it in the future.
+
+Just see it and be like, oh, that's a rotation matrix.
+
+That's obviously a rotation matrix because that's what it does. It rotates the coordinates into new coordinates.
+
+So this is the part that allows us to rotate our Gabor filters with different uh, angles.
+
+And that's here. So we start with the governance filter that's uh just with a zero uh orientation
+
+and then 45 and then 70 or something more 100 something and so on and so forth.
+
+So you can vary this, this theta angle. And then we can create the rotated grid on which we draw the Gabor filter.
+
+So. They are given the formula that I showed of the Gabor filter.
+
+And I think I already told you the answer. In which domain will the Gabor filters, uh, have results?
+
+And what is the domain of a Gabor? Filters in natural numbers.
+
+Is it integers? And natural numbers are between zero and n integers.
+
+Just the positive integers z is the the negative and positive integers r is the real numbers or something else.
+
+What's what's the domain of of discover filters. I already said that in the previous part.
+
+Yeah, exactly. So it's a complex number.
+
+Every, every point in this Gabor filter is a complex number.
+
+So that is typically written as a C with a double bar like this.
+
+The complex numbers. Um and because it's a complex number, that means it has a real part and an imaginary part.
+
+And if you split the real part in the imaginary part, you can create a real filter in an imaginary filter.
+
+So you have the, the real part of the Gabor filter and the imaginary part of the filter.
+
+Um, and the real part of the of the Gabor filter is even symmetric.
+
+So that means that if you would take, uh, an axis through the middle of the filter, you have an even number of, uh, um, yeah.
+
+Fluctuations on each side of this, this, uh, central line.
+
+And for the imaginary part, we say it's, uh, odd symmetric.
+
+So it's, it's an odd number of variations. It doesn't, uh, split in half of the.
+
+Uh, the line, um, I mean, it's split in half, but like, the the leftover parts are old.
+
+Um, so that's that's, uh, the, uh, uh, intuition about the filters.
+
+That's the parameters of the governor filters. That's how you can vary them and get an intuition of what happens if we bury them.
+
+Are there any questions so far? Is it clear?
+
+Why do we want to talk about Gabor filters? What the different parameters of the governance filters do.
+
+What the governance filter is. Yeah.
+
+Okay. It's good to to ask all the questions here, because then you save yourself time at home and you don't have to learn all these things yourself.
+
+Um. And yeah, you can expect, uh, questions in the exam about a gaggle of filters.
+
+So it's good to have a bit of an understanding of it. And also not just that they're very useful in, in practice.
+
+So they're they're still used even in deep learning papers.
+
+There's papers that actually have created, uh, Gabor filter variations, uh, in, in the filter bank.
+
+So they are still, uh, useful. Uh, filters is not something that we use 20 years ago.
+
+And we stopped using them. Um.
+
+So now the question that I have is, what do we expect if we take the free transform of the real part of of this Gabor filters here.
+
+Right. So I have a go to filter. And this goes back to our intuition about what the Fourier transform does.
+
+What would I expect to get for by taking the Fourier transform of this zero Gabor filter, for example the zero orientation.
+
+So our filters are used to, to, uh, extract frequencies, local frequencies from the image.
+
+And we saw the formula. We saw that it's a Gaussian had multiplied with the sinusoid.
+
+And now what happens if we take the Fourier transform of a Gaussian that's multiplied with a sinusoid?
+
+Could you describe how the Fourier transform of this thing looks like?
+
+Yeah, maybe a little bit, but I just for.
+
+Um. Like.
+
+I think you're trying to look at it as an image. Try to look at it as as a signal.
+
+So what is this Gabor filter?
+
+It's a sinusoid squashed with the Gaussian hat.
+
+How many frequencies are present in this sinusoid?
+
+Oh. No, I'm not asking.
+
+What is the frequency of the sinusoid? But like, how many different frequencies are in there?
+
+Oh, yeah. So you have the frequency on the, uh, horizontal direction and the frequency on the vertical direction, right?
+
+And because this one is a, uh, vertical, uh, filter, like, it doesn't vary on the, uh, the vertical direction, it only varies on the X direction.
+
+Actually, the frequency on the y direction is zero because it doesn't vary there.
+
+So it only has one frequency and that is on the horizontal direction.
+
+So if it only has one frequency. Then what do we expect to see in the Fourier domain?
+
+Come on guys. We talked about this at the beginning of the previous lecture.
+
+Okay. I'll bring the slide up from from the previous, uh.
+
+Apart from the recap on Fourier's. Where were we?
+
+Uh. Here.
+
+So we have a sinusoid. It has one frequency.
+
+That's the frequency. That's that's how many times as soon as it goes up and down, it's four here, right?
+
+It goes four times up and down. That's one frequency.
+
+There's no more frequencies in this image. There's no frequency on the X on the Y direction, because it doesn't change on the x direction.
+
+It changes and then it changes four times up and down.
+
+And then I have one dot as frequency four in the Fourier domain.
+
+So then if I have the same thing in the Gabor, uh, filter I have, but then I don't have the sinusoid.
+
+I have a squashed sinusoid under, uh, a Gaussian hat.
+
+So I have this, this Gaussian had I put on top of this. So it.
+
+To squash it. What can I expect to see here?
+
+Do you guys know what the real for Gaussian is? What do you obtain if you take the Fourier transform of a Gaussian?
+
+You get back in Gaussian with a different sigma, but it's still a Gaussian.
+
+So now you know the components. A gamma filter is a Gaussian multiplied with the signal.
+
+So it. And three of the Gaussian is a Gaussian, it's a different sigma and the Fourier of a sinusoid.
+
+Is a dot on the correct frequency in the Fourier domain and then mirrors because the free domain is mirrored.
+
+So what do we do? Do we obtain if we take the Fourier transform of a Gabor filter?
+
+They just have to multiply this with the Gaussian, right.
+
+Because the free I forgot. Yeah you are.
+
+Uh, it would be this and then blurred out.
+
+Uh, right. Because the free alpha Gaussian is a Gaussian.
+
+The Fourier of sign is just two dots. Are the correct frequencies in the frequency domain.
+
+So if I've blurred this out because that's what the Gaussian is I get a blurred two blurred dots.
+
+And that is what I can expect if I take the Fourier transform of a Gallagher filter.
+
+Why was that so, so difficult? Can I? Can I ask you guys what part was confusing about the question?
+
+Is this something? It's unclear or worse that I'm using that the don't make sense or.
+
+Yeah. You think it's just. My hands are all this stuff.
+
+It's a lot of information. Yeah. I mean, you may understand the slide at first.
+
+Mhm. But then for information.
+
+Yeah. Yeah yeah. Okay. So there's just a lot of information at once and and you get confused about it.
+
+Okay. Um tell me if, if things go too slow or you want me to go back and re-explain some things or revisit
+
+some things that that you got lost because that's the purpose of this lecture.
+
+I'm here to explain to something. And hopefully by the time you leave this room, you have learned something new.
+
+You can go home and be like, hey, at least now I have a vague understanding of what Korea does and what the governance filter is.
+
+So going back to the, um, the question that I have here that the uh, zero zero component is not drawn, I have two dots that are blurred out.
+
+And that is what I get by doing this, uh, by taking the Fourier transform of this, uh, this filter.
+
+And that's where the frequencies are. So the frequency of this is the sinusoid, and then this,
+
+this blurring out comes from the Gaussian hat that this applied to the like those images, uh, you know, doesn't make sense.
+
+Yeah. But like trying to, like. Connected to the beginning of the lecture that is going on.
+
+Yeah, yeah, yeah. Yeah, but I think, uh, something to try to, to get comfortable is,
+
+is trying to remember that sinusoids correspond to single points in the Fourier domain because they have a single frequency.
+
+And then, you know, whatever I do with these sinusoids, then at least I know what what they represent in the Fourier domain.
+
+Um. Okay.
+
+So. Gabor filters, uh responses can be used as a feature to describe an image locally.
+
+So we said they give local responses when convolve to an image.
+
+Um. By feature, I mean a vector of numbers that you can then use in your favourite classifier to to classify whatever is happening in the image.
+
+Or you can compute distances between these vector of numbers to match images, for example.
+
+So you can say I'm going to compute the Gabor responses over my one image.
+
+I'm going to, uh, save all these responses, uh, into a vector.
+
+I'm going to reshape it as a one row. That's a vector.
+
+And then I'm going to compute L1 distances between these vectors.
+
+And that's going to hopefully tell me something about how similar the frequencies are between these, these images locally.
+
+So like do they have the same frequencies in the top left corner.
+
+Do they have the same frequencies in the bottom uh corner. But the question was.
+
+So we discussed all these parameters that, uh, the Gabor filters have.
+
+So they have this, uh, sigma parameters that, uh, controls how big the Gaussian hat is.
+
+We have the gamma parameters. It controls how skewed, uh, the, uh, the Gaussian is the we have the frequency of the, uh, seek, uh, sinusoid.
+
+Um, what else do we have? We have the orientation that the rotation of the Gabor filter.
+
+How do we choose which one to use on an image?
+
+So we want to describe an image. And we want to say, okay, these are the frequencies there are present in the image.
+
+But how how do I know what's the best Gabor filter to use to get the best image description or image feature vector?
+
+Yeah, maybe we try. And then you say that.
+
+Exactly. We don't have to use one of them. We can try a whole bunch of them.
+
+We can try to use a whole variation of them and then see how our image responds to different, uh, variations of this filter.
+
+So we can we can vary the, uh, the KPA, uh, scale.
+
+We can vary the orientation. We can vary the frequency here is not very.
+
+We could also do that, make the, uh, the, uh, going up and down slower or faster.
+
+So we have less wiggles or more wiggles.
+
+We can do all these things, and then we can define a filter band.
+
+And that's what what people call a filter bank is typically a set of filters that have a whole bunch of parameter variations scale,
+
+orientation, uh, frequency and so on and so forth.
+
+And then we keep them all together, and then we convolve the image with all the filters in our filter bank, and we get a whole bunch of responses.
+
+And that's and all those responses are how we describe the image.
+
+So we get one image from each one of these filters, and then we can concatenate them or uh,
+
+we can first compress them with PCA or some other uh, feature.
+
+Uh, and then uh, we can use them to describe the, um, the image.
+
+And then we can do image matching, for example. So.
+
+What if I have this this, uh, filter bank here?
+
+It has different orientations and has different scales.
+
+And what if I take the Fourier transform of all the filters?
+
+This is again an intuition question. What if I take the Fourier transform of all the filters in this mini filter bank that I created here.
+
+And then I look at the Fourier transform. How would it look like.
+
+Can you describe it? Do you have an intuition of what would the Fourier transform look like if I add the Fourier responses of all these filters?
+
+So we take a sample from the. Warrior up there on the field.
+
+There's no problem. We're gonna slip and go. Yeah, yeah, it's it's it's it's a pretty good description.
+
+Yeah. Yeah, it's it looks a bit like a flower, which is actually quite nice.
+
+So, um, you have different, uh, different segments.
+
+And different orientations. And that gives you this, this flower pattern.
+
+And you also have different frequencies. So here it goes less often up and down than here.
+
+And then you also get this outer circle.
+
+So it looks a bit like a flower. The the response of combining different orientations of, of of filters uh, together.
+
+And now we talked about okay, we want to use them to extract features from an image.
+
+So that's, that's exactly what we're going to do is we take an image and then we use this filter bank.
+
+And then we extract uh values by just filtering this image with each one of this, these values that we saw in the filter banks.
+
+And then getting one of these images out.
+
+And then if we add all the images back, we get something that resembles more or less the original image, but not completely.
+
+But that's not the point. Because we wouldn't use this, we would actually use this one as concatenated together as a feature to describe the image.
+
+And then you could compute distances between all this concatenated together.
+
+So you would have, uh, all these uh, responses that you have.
+
+How many do you have? Three by seven, 12 images you would have 12 channels.
+
+And then you would actually compute, uh, L2 distance between these 212 channel images of one one input image of an other input image,
+
+and then see how similar they are together. Yeah. So for example.
+
+Like a lot of points on top of each other, just like, um, yeah.
+
+And then just like a similar to your on the previous and the specific problem there would be like.
+
+Um, you know, other manifold. Yeah.
+
+Like for example, like for.
+
+Okay. So, so I do think that you would get certain edge responses.
+
+Right. Like here. And you can see there's also like a certain frequency of these lines where these two lines repeat with a certain uh frequency.
+
+Um, and then you could hope that if that's unique to, to your, to your account,
+
+that you can find those repeated frequencies at that specific location also in your target image.
+
+And you can find it back.
+
+And also it's important to do this across scales because maybe your euro coin is going to be smaller in the target image than in the original image.
+
+But we're going to talk a bit more about multi-scale features in in in in our next
+
+lecture where we're going to talk about how do we match features across scales.
+
+But for now, you would do this across all scales and all orientations and hope that some information that's useful to describe this,
+
+this euro coin is in there. And then you can find it back if you want to, to match it to another image of a euro coin of a €2 coin.
+
+It's like not visible but something is different.
+
+Something so on only part of the image.
+
+Yeah, I think I would still have some responses, but for me it's hard to say if that would be sufficient to recognise it.
+
+Yeah, but it will have like at least some parts of the responses that could classify this as corresponding to this image.
+
+Okay. Um, so government filters, filters have been used a lot for recognising different types of textures because they, they look at frequency.
+
+So this is typically when you have textures, you have frequencies that that correspond to certain region areas.
+
+And they're extremely good at this.
+
+So this is the main go to task is for for using our filters is for recognising different types of textures in the image.
+
+And uh, there's also, uh, paper from I think, uh, yeah, Transactions on Image Processing 2018,
+
+in which they put Gabor filters in a convolutional neural network.
+
+Um, they actually do not train these Gabor filters.
+
+They predefined, uh, Gabor filter bank like I just showed you.
+
+They just pick some orientations and pick some skills, and then they put those in a network in a layer,
+
+and then they convolve the input feature maps with their Gabor filter bank.
+
+And then use that to, to, to uh, train the network.
+
+And it seems to work quite reasonable. So it's, it's has been used.
+
+It's not, uh, of the past.
+
+It's still, uh, quite relevant. Um, do you guys have any questions about this lecture?
+
+Any things that that's you want to ask or found unclear or.
+
+One, two, two. Mention. Also, I haven't heard any words that that were not known.
+
+So. I assume all the words that I used in this lecture were known to you, and I didn't use any confusing language or any jargon.
+
+Okay. Good. Good. Okay.
+
+Um, then, uh, for the next lecture, you're going to be discussing PCA with Cohn, and there's the reading material already for the next lecture.
+
+And, um, have a nice, safe place.
+

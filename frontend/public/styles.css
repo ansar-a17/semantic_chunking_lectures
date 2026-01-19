@@ -1,0 +1,311 @@
+/* ---------- Reset ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ---------- Base ---------- */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+    background: #1c1c1e;
+    color: #e5e5e7;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ---------- Typography ---------- */
+h1,
+h2,
+h3 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: -0.4px;
+}
+
+/* ---------- Header ---------- */
+header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #f5f5f7;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #a1a1a6;
+}
+
+/* ---------- Card Sections ---------- */
+.upload-section,
+.parameters-section,
+.results-section,
+.error-message {
+    background: #ffffff;
+    border: 1px solid #e5e5e7;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    margin-bottom: 24px;
+}
+
+/* ---------- File Upload ---------- */
+.file-input-group {
+    margin-bottom: 24px;
+}
+
+.file-input-group label {
+    display: block;
+    padding: 32px;
+    border: 1.5px dashed #d1d5db;
+    border-radius: 12px;
+    background: #e5e7eb;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input-group label:hover {
+    background: #d1d5db;
+    border-color: #6b7280;
+}
+
+.label-text {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #1f2937;
+}
+
+.file-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+/* ---------- Parameters ---------- */
+.parameters-section h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.parameter-group {
+    margin-bottom: 16px;
+}
+
+.parameter-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.parameter-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #e5e7eb;
+    color: #1f2937;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.parameter-group input:focus {
+    outline: none;
+    border-color: #6b7280;
+    background: #ffffff;
+}
+
+/* ---------- Tooltip ---------- */
+.tooltip {
+    position: relative;
+    color: #a1a1a6;
+    cursor: help;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    opacity: 0;
+    width: 240px;
+    background: #1f2937;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ---------- Buttons ---------- */
+button {
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-btn,
+.download-btn {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.submit-btn:hover:not(:disabled),
+.download-btn:hover {
+    background: #111827;
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.reset-btn {
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.reset-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+/* ---------- Progress ---------- */
+.progress-bar {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #1f2937;
+    transition: width 0.3s ease;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* ---------- Results ---------- */
+.results-section h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 16px;
+    color: #1f2937;
+}
+
+.success-message {
+    text-align: center;
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.info-message {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 32px;
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.stat-label {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: #1f2937;
+}
+
+/* ---------- Error ---------- */
+.error-message {
+    text-align: center;
+}
+
+.error-message h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ef4444;
+    margin-bottom: 16px;
+}
+
+.error-message p {
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .upload-section,
+    .parameters-section,
+    .results-section,
+    .error-message {
+        padding: 24px;
+    }
+}

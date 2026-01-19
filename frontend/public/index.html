@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TiU Lecture Chunker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TiU Lecture Chunker</h1>
+            <p class="subtitle">Upload the lecture PDF and transcripts.txt to get structured chunks for LLMs</p>
+        </header>
+
+        <div class="upload-section">
+            <form id="uploadForm">
+                <div class="file-input-group">
+                    <label for="pdfFile">
+                        <span class="label-text">Lecture Slides PDF</span>
+                        <span class="file-info" id="pdfFileInfo">No file chosen</span>
+                    </label>
+                    <input 
+                        type="file" 
+                        id="pdfFile" 
+                        name="pdf_file" 
+                        accept=".pdf" 
+                        required
+                    >
+                </div>
+
+                <div class="file-input-group">
+                    <label for="transcriptFile">
+                        <span class="label-text">Transcript Text File</span>
+                        <span class="file-info" id="transcriptFileInfo">No file chosen</span>
+                    </label>
+                    <input 
+                        type="file" 
+                        id="transcriptFile" 
+                        name="transcript_file" 
+                        accept=".txt" 
+                        required
+                    >
+                </div>
+
+                <div class="parameters-section">
+                    <h3>Advanced Parameters</h3>
+                    <div class="parameter-group">
+                        <label for="windowSize">
+                            Window Size
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Number of sentences to consider in each chunk (default: 5)</span>
+                            </span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="windowSize" 
+                            name="window_size" 
+                            value="5" 
+                            min="1" 
+                            max="20"
+                        >
+                    </div>
+
+                    <div class="parameter-group">
+                        <label for="similarityThreshold">
+                            Similarity Threshold
+                            <span class="tooltip">?
+                                <span class="tooltiptext">Minimum similarity score for matching (0.0 - 1.0, default: 0.60)</span>
+                            </span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="similarityThreshold" 
+                            name="similarity_threshold" 
+                            value="0.60" 
+                            min="0" 
+                            max="1" 
+                            step="0.01"
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">
+                    Process Lecture
+                </button>
+            </form>
+        </div>
+
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <p class="progress-text" id="progressText">Processing...</p>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>Processing Complete</h2>
+            
+            <div class="stats-grid" id="statsGrid">
+                <!-- Statistics will be populated here -->
+            </div>
+
+            <div class="action-buttons">
+                <button id="downloadBtn" class="download-btn">
+                    Download JSON Results
+                </button>
+                <button id="resetBtn" class="reset-btn">
+                    Process Another File
+                </button>
+            </div>
+        </div>
+
+        <div class="error-section" id="errorSection" style="display: none;">
+            <div class="error-message">
+                <h3>Error</h3>
+                <p id="errorText"></p>
+                <button id="errorResetBtn" class="reset-btn">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
