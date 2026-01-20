@@ -1,16 +1,8 @@
-"""
-Page-by-Page Content Extractor for Docling Documents
-
-This module provides functionality to extract content from PDF files
-organized by page number using Docling's document parsing capabilities.
-"""
-
 from typing import Dict
 from docling.document_converter import DocumentConverter
 
 
 class PageContentExtractor:
-    """Extract and organize PDF content by page number."""
     
     def __init__(self):
         """Initialize the document converter."""
@@ -18,8 +10,6 @@ class PageContentExtractor:
     
     def extract_pages(self, pdf_path: str) -> Dict[int, str]:
         """
-        Extract content from a PDF file organized by page number.
-        
         Args:
             pdf_path: Path to the PDF file
             
@@ -27,11 +17,11 @@ class PageContentExtractor:
             Dictionary mapping page numbers to page content as markdown strings
             Example: {1: "Page 1 content...", 2: "Page 2 content...", ...}
         """
-        # Convert the PDF document
+        # Convert pdf
         result = self.converter.convert(pdf_path)
         doc = result.document
         
-        # Initialize page content dictionary
+        # Initialize dictionary
         page_contents = {}
         
         # Iterate through all pages in the document
@@ -42,18 +32,3 @@ class PageContentExtractor:
             page_contents[page_no] = page_markdown
         
         return page_contents
-    
-    
-    def get_page_count(self, pdf_path: str) -> int:
-        """
-        Get the total number of pages in a PDF file.
-        
-        Args:
-            pdf_path: Path to the PDF file
-            
-        Returns:
-            Number of pages in the document
-        """
-        result = self.converter.convert(pdf_path)
-        doc = result.document
-        return len(doc.pages)

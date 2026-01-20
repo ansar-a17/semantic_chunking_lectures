@@ -1,16 +1,6 @@
 import re
 
 def clean_transcript_sentence(sentence: str) -> str:
-    """
-    Remove filler words and clean transcript text.
-    
-    Args:
-        sentence: Raw transcript sentence
-        
-    Returns:
-        Cleaned sentence with filler words removed
-    """
-    # Filler words to remove
     fillers = [
         r'\bum\b', r'\buh\b', r'\blike\b', r'\byou know\b', 
         r'\bsort of\b', r'\bkind of\b', r'\bi mean\b', 
@@ -29,8 +19,6 @@ def clean_transcript_sentence(sentence: str) -> str:
 
 def process_transcripts(path):
     """
-    Process transcript file and clean each line.
-    
     Args:
         path: Path to transcript file
         

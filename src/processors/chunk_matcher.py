@@ -216,34 +216,7 @@ class TranscriptSlideChunker:
                 best_page = page_num
         
         return (best_page, best_similarity) if best_page else None
-    
-    def get_statistics(self, chunks: List[Dict]) -> Dict:
-        """Get detailed statistics about the chunks."""
-        stats = {
-            'total_chunks': len(chunks),
-            'matched_chunks': len([c for c in chunks if c['page_num'] is not None]),
-            'unmatched_chunks': len([c for c in chunks if c['page_num'] is None]),
-            'total_sentences': sum(len(c['transcript_sentences']) for c in chunks),
-            'avg_sentences_per_chunk': 0,
-            'avg_similarity': 0,
-            'slides_with_matches': set()
-        }
-        
-        if chunks:
-            stats['avg_sentences_per_chunk'] = float(stats['total_sentences'] / len(chunks))
-            
-            all_similarities = []
-            for chunk in chunks:
-                all_similarities.extend(chunk['similarities'])
-                if chunk['page_num'] is not None:
-                    stats['slides_with_matches'].add(chunk['page_num'])
-            
-            if all_similarities:
-                stats['avg_similarity'] = float(np.mean(all_similarities))
-            
-            stats['unique_slides_matched'] = len(stats['slides_with_matches'])
-        
-        return stats
+
     
     def build_simple_dict(self, chunks: List[Dict], slide_pages: Dict[int, str] = None) -> Dict[int, List]:
         """
