@@ -46,16 +46,16 @@ async def root():
 @app.post("/process-lecture")
 async def process_lecture(
     pdf_file: UploadFile = File(..., description="PDF file containing lecture slides"),
-    transcript_file: UploadFile = File(..., description="Text file containing transcripts"),
+    transcript_files: List[UploadFile] = File(..., description="One or more text files containing transcripts"),
     window_size: int = 5,
     similarity_threshold: float = 0.60
 ):
     """
-    Process a lecture PDF and transcript file to match transcripts with slides.
+    Process a lecture PDF and transcript file(s) to match transcripts with slides.
     
     Parameters:
     - pdf_file: PDF file with lecture slides
-    - transcript_file: Text file with transcripts
+    - transcript_files: One or more text files with transcripts (will be merged if multiple)
     - window_size: Window size for chunk matching (default: 5)
     - similarity_threshold: Similarity threshold for matching (default: 0.60)
     
@@ -68,11 +68,17 @@ async def process_lecture(
     if not pdf_file.filename.endswith('.pdf'):
         raise HTTPException(status_code=400, detail="PDF file must have .pdf extension")
     
-    if not transcript_file.filename.endswith('.txt'):
-        raise HTTPException(status_code=400, detail="Transcript file must have .txt extension")
+    # Validate number of transcript files
+    if len(transcript_files) < 1 or len(transcript_files) > 2:
+        raise HTTPException(status_code=400, detail=f"Please provide 1 or 2 transcript files. Received {len(transcript_files)} files.")
+    
+    # Validate all transcript files
+    for transcript_file in transcript_files:
+        if not transcript_file.filename.endswith('.txt'):
+            raise HTTPException(status_code=400, detail=f"Transcript file '{transcript_file.filename}' must have .txt extension")
     
     temp_pdf_path = None
-    temp_transcript_path = None
+    temp_transcript_paths = []
     
     try:
         # Create temporary files
@@ -82,11 +88,14 @@ async def process_lecture(
             temp_pdf.write(content)
             logger.info(f"Saved PDF to temporary file: {temp_pdf_path}")
         
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as temp_transcript:
-            temp_transcript_path = temp_transcript.name
-            content = await transcript_file.read()
-            temp_transcript.write(content.decode('utf-8'))
-            logger.info(f"Saved transcript to temporary file: {temp_transcript_path}")
+        # Save all transcript files to temporary locations
+        for i, transcript_file in enumerate(transcript_files):
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as temp_transcript:
+                temp_transcript_path = temp_transcript.name
+                temp_transcript_paths.append(temp_transcript_path)
+                content = await transcript_file.read()
+                temp_transcript.write(content.decode('utf-8'))
+                logger.info(f"Saved transcript file {i+1} ('{transcript_file.filename}') to: {temp_transcript_path}")
         
         # Step 1: Extract slides from PDF
         logger.info("Step 1: Extracting slides from PDF")
@@ -98,10 +107,10 @@ async def process_lecture(
             raise HTTPException(status_code=400, detail="No pages could be extracted from PDF")
         
         # Step 2: Process transcripts and generate embeddings
-        logger.info("Step 2: Processing transcripts")
-        lines = process_transcripts(temp_transcript_path)
+        logger.info(f"Step 2: Processing {len(temp_transcript_paths)} transcript file(s)")
+        lines = process_transcripts(temp_transcript_paths)
         transcripts = build_transcripts(lines)
-        logger.info(f"Processed {len(transcripts)} transcript sentences")
+        logger.info(f"Processed {len(transcripts)} transcript sentences from {len(temp_transcript_paths)} file(s)")
         
         if not transcripts:
             raise HTTPException(status_code=400, detail="No transcripts could be processed from file")
@@ -167,12 +176,13 @@ async def process_lecture(
             except Exception as e:
                 logger.warning(f"Could not delete temporary PDF file: {e}")
         
-        if temp_transcript_path and os.path.exists(temp_transcript_path):
-            try:
-                os.unlink(temp_transcript_path)
-                logger.info(f"Cleaned up temporary transcript file")
-            except Exception as e:
-                logger.warning(f"Could not delete temporary transcript file: {e}")
+        for temp_transcript_path in temp_transcript_paths:
+            if temp_transcript_path and os.path.exists(temp_transcript_path):
+                try:
+                    os.unlink(temp_transcript_path)
+                    logger.info(f"Cleaned up temporary transcript file")
+                except Exception as e:
+                    logger.warning(f"Could not delete temporary transcript file: {e}")
 
 
 if __name__ == "__main__":

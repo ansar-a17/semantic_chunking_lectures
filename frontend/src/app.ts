@@ -59,7 +59,14 @@ pdfFileInput.addEventListener('change', (e) => {
 transcriptFileInput.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-        transcriptFileInfo.textContent = target.files[0].name;
+        if (target.files.length > 2) {
+            showError('Please select only 1 or 2 transcript files');
+            target.value = ''; // Clear the selection
+            transcriptFileInfo.textContent = 'No file chosen';
+            return;
+        }
+        const fileNames = Array.from(target.files).map(f => f.name).join(', ');
+        transcriptFileInfo.textContent = fileNames;
     } else {
         transcriptFileInfo.textContent = 'No file chosen';
     }
@@ -76,14 +83,24 @@ uploadForm.addEventListener('submit', async (e) => {
     }
     
     if (!transcriptFileInput.files || transcriptFileInput.files.length === 0) {
-        showError('Please select a transcript file');
+        showError('Please select at least one transcript file');
+        return;
+    }
+    
+    if (transcriptFileInput.files.length > 2) {
+        showError('Please select only 1 or 2 transcript files');
         return;
     }
     
     // Prepare form data
     const formData = new FormData();
     formData.append('pdf_file', pdfFileInput.files[0]);
-    formData.append('transcript_file', transcriptFileInput.files[0]);
+    
+    // Append all transcript files
+    for (let i = 0; i < transcriptFileInput.files.length; i++) {
+        formData.append('transcript_files', transcriptFileInput.files[i]);
+    }
+    
     formData.append('window_size', windowSizeInput.value);
     formData.append('similarity_threshold', similarityThresholdInput.value);
     
