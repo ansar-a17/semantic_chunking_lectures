@@ -4,48 +4,11 @@ This is an open source version of a larger personal project. To build high-quali
 
 I built this semantic chunking algorithm to match the unstructured transcripts.txt with the lecture slides. Once this program has successfully chunked the data, it can be used for various purposes and you are guaranteed to have captured everything the lecture consisted of. This program effectively reconstructs what the teacher said while a specific slide was being shown.
 
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         User Interface                          │
-│                    (TypeScript Frontend)                        │
-│                         Port 3000                               │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ HTTP/REST API
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FastAPI Backend                            │
-│                         Port 8000                               │
-├─────────────────────────────────────────────────────────────────┤
-│  POST /process-lecture                                          │
-│    ├─ PDF File (slides.pdf)                                     │
-│    └─ Transcript File (transcript.txt)                          │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-┌──────────────┐  ┌──────────────────┐  ┌─────────────────┐
-│   Docling    │  │  Transformers    │  │ Sentence        │
-│ PDF Extractor│  │  (AI Embeddings) │  │ Transformers    │
-└──────────────┘  └──────────────────┘  └─────────────────┘
-        │                   │                   │
-        └───────────────────┴───────────────────┘
-                            │
-                            ▼
-                ┌──────────────────────┐
-                │   Slide Transcripts  │
-                │   Matched Output     │
-                └──────────────────────┘
-```
-
 ## Features
 
 - Extract text content from PDF lecture slides
 - Process and parse transcript files
-- AI-powered semantic matching using transformer embeddings
+- Semantic matching using transformer embeddings
 - Configurable similarity thresholds and window sizes
 - Fully containerized with Docker
 - REST API with modern web interface
