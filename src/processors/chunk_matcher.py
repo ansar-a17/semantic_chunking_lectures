@@ -218,27 +218,32 @@ class TranscriptSlideChunker:
         return (best_page, best_similarity) if best_page else None
 
     
-    def build_simple_dict(self, chunks: List[Dict], slide_pages: Dict[int, str] = None) -> Dict[int, List]:
+    def build_simple_dict(self, chunks: List[Dict], slide_pages: Dict[int, str] = None, all_transcript_sentences: List[str] = None) -> Tuple[Dict[int, List], List[str]]:
         """
         Build a simple dictionary structure: {slide_number: [slide_content, [transcripts]]}.
         Initializes ALL slides with empty transcript lists to ensure consistency.
+        Also returns unmatched transcript sentences.
         
         Args:
             chunks: List of chunks from build_chunks_with_windows()
             slide_pages: Dictionary of all slide pages {page_num: content}. 
                          If provided, initializes all slides with empty lists.
+            all_transcript_sentences: List of all transcript sentences to track unmatched ones
         
         Returns:
-            Dictionary with structure: {slide_num: [slide_content, [transcript_sentences]]}
+            Tuple of (slide_data_dict, unmatched_transcripts_list)
+            - slide_data_dict: {slide_num: [slide_content, [transcript_sentences]]}
+            - unmatched_transcripts_list: List of transcript sentences not matched to any slide
         """
         slide_data = {}
+        matched_sentences = set()
         
         # Initialize ALL slides if slide_pages is provided
         if slide_pages:
             for page_num, content in slide_pages.items():
                 slide_data[page_num] = [content, []]
         
-        # Fill in matched transcripts
+        # Fill in matched transcripts and track them
         for chunk in chunks:
             slide_num = chunk.get('page_num')
             
@@ -251,8 +256,16 @@ class TranscriptSlideChunker:
                         []
                     ]
                 
-                # Add all transcript sentences from this chunk
+                # Add all transcript sentences from this chunk and track them
                 for sentence in chunk.get('transcript_sentences', []):
                     slide_data[slide_num][1].append(sentence)
+                    matched_sentences.add(sentence)
         
-        return slide_data
+        # Identify unmatched transcripts
+        unmatched_transcripts = []
+        if all_transcript_sentences:
+            for sentence in all_transcript_sentences:
+                if sentence not in matched_sentences:
+                    unmatched_transcripts.append(sentence)
+        
+        return slide_data, unmatched_transcripts

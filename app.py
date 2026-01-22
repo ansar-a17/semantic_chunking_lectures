@@ -129,7 +129,7 @@ async def process_lecture(
         
         # Step 4: Build simple dictionary structure
         logger.info("Step 4: Building data structure")
-        slide_data = chunker.build_simple_dict(chunks, pages)
+        slide_data, unmatched_transcripts = chunker.build_simple_dict(chunks, pages, lines)
         
         # Check if any transcripts were matched
         matched_slides = sum(1 for _, (_, transcripts) in slide_data.items() if len(transcripts) > 0)
@@ -138,10 +138,12 @@ async def process_lecture(
         if matched_slides == 0:
             logger.warning("No transcripts were matched to any slides. The similarity threshold may be too high or the content doesn't match.")
         
+        logger.info(f"Matched {total_transcripts} transcript segments, {len(unmatched_transcripts)} unmatched")
+        
         # Prepare response
         response_data = {
             "success": True,
-            "message": f"Lecture processed successfully. Matched {total_transcripts} transcript segments to {matched_slides} of {len(pages)} slides.",
+            "message": f"Lecture processed successfully. Matched {total_transcripts} transcript segments to {matched_slides} of {len(pages)} slides. {len(unmatched_transcripts)} transcripts unmatched.",
             "data": {
                 "slide_data": {
                     str(slide_num): {
@@ -151,6 +153,7 @@ async def process_lecture(
                     }
                     for slide_num, (content, transcripts) in slide_data.items()
                 },
+                "unmatched_transcripts": unmatched_transcripts,
                 "parameters": {
                     "window_size": window_size,
                     "similarity_threshold": similarity_threshold
