@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import tempfile
@@ -47,8 +47,8 @@ async def root():
 async def process_lecture(
     pdf_file: UploadFile = File(..., description="PDF file containing lecture slides"),
     transcript_files: List[UploadFile] = File(..., description="One or more text files containing transcripts"),
-    window_size: int = 5,
-    similarity_threshold: float = 0.60
+    window_size: int = Form(5),
+    similarity_threshold: float = Form(0.60)
 ):
     """
     Process a lecture PDF and transcript file(s) to match transcripts with slides.
