@@ -271,12 +271,39 @@ async def convert_to_markdown(
 
 
 def _clean_slide_content(content: str) -> str:
-    """Clean slide content formatting."""
-    result = ""
+    """Clean and format slide content by removing markdown artifacts."""
+    lines = []
+    
     for line in content.split("\n"):
-        result += "\n"
-        result += line.strip()
-    return result
+        line = line.strip()
+        
+        # Skip empty lines at the start
+        if not line and not lines:
+            continue
+        
+        # Skip image and formula comments
+        if line in ["<!-- image -->", "<!-- formula-not-decoded -->"]:
+            continue
+        
+        # Convert Image Analysis heading to H3 (###)
+        if line == "## Image Analysis":
+            line = "### Image Analysis"
+        # Remove other markdown heading symbols (##) but keep the text content
+        elif line.startswith("##"):
+            line = line.lstrip("#").strip()
+        
+        # Remove bold markdown (**) from text
+        if "**" in line:
+            line = line.replace("**", "")
+        
+        # Remove bullet points from markdown lists (optional - keep if you want structure)
+        # if line.startswith("- "):
+        #     line = line[2:]
+        
+        if line:  # Only add non-empty lines
+            lines.append(line)
+    
+    return "\n".join(lines)
 
 
 def convert_slide_data_to_markdown(slide_data: Dict) -> str:
@@ -287,7 +314,7 @@ def convert_slide_data_to_markdown(slide_data: Dict) -> str:
         slide_data: Dictionary with slide data in format {slide_num: {"slide_number": int, "content": str, "transcripts": list}}
     
     Returns:
-        Markdown formatted string
+        Markdown formatted string with proper headings and cleaned content
     """
     results = []
     
@@ -297,7 +324,8 @@ def convert_slide_data_to_markdown(slide_data: Dict) -> str:
         slide_content = _clean_slide_content(slide_info["content"])
         slide_transcripts = "\n".join(slide_info["transcripts"])
         
-        result = f"slide number:\n{slide_number}\n\nslide_content:\n{slide_content}\n\nslide_transcripts:\n{slide_transcripts}"
+        # Format with proper markdown headings (H1 for slide number, H2 for sections)
+        result = f"# slide number {slide_number}\n\n## slide_content\n\n{slide_content}\n\n## slide_transcripts\n{slide_transcripts}"
         result += "\n" + "_"*80 + "\n"
         results.append(result)
     

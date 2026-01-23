@@ -190,7 +190,8 @@ function convertToMarkdown(slideData: any): string {
         const slideContent = cleanSlideContent(slideInfo.content);
         const slideTranscripts = slideInfo.transcripts.join('\n');
         
-        let result = `slide number:\n${slideNumber}\n\nslide_content:\n${slideContent}\n\nslide_transcripts:\n${slideTranscripts}`;
+        // Format with proper markdown headings (H1 for slide number, H2 for sections)
+        let result = `# slide number ${slideNumber}\n\n## slide_content\n\n${slideContent}\n\n## slide_transcripts\n${slideTranscripts}`;
         result += '\n' + '_'.repeat(80) + '\n';
         results.push(result);
     }
@@ -198,11 +199,45 @@ function convertToMarkdown(slideData: any): string {
     return results.join('\n');
 }
 
-// Clean slide content formatting
+// Clean slide content formatting - removes markdown artifacts
 function cleanSlideContent(content: string): string {
-    return content.split('\n')
-        .map(line => '\n' + line.trim())
-        .join('');
+    const lines: string[] = [];
+    
+    for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        
+        // Skip empty lines at the start
+        if (!trimmed && lines.length === 0) {
+            continue;
+        }
+        
+        // Skip image and formula comments
+        if (trimmed === '<!-- image -->' || trimmed === '<!-- formula-not-decoded -->') {
+            continue;
+        }
+        
+        let cleaned = trimmed;
+        
+        // Convert Image Analysis heading to H3 (###)
+        if (cleaned === '## Image Analysis') {
+            cleaned = '### Image Analysis';
+        }
+        // Remove other markdown heading symbols (##) but keep the text content
+        else if (cleaned.startsWith('##')) {
+            cleaned = cleaned.replace(/^#+\s*/, '');
+        }
+        
+        // Remove bold markdown (**) from text
+        if (cleaned.includes('**')) {
+            cleaned = cleaned.replace(/\*\*/g, '');
+        }
+        
+        if (cleaned) {
+            lines.push(cleaned);
+        }
+    }
+    
+    return lines.join('\n');
 }
 
 // Initial button handlers (will be overridden when results are shown)
