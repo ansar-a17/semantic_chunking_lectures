@@ -154,6 +154,57 @@ function downloadResults(): void {
     URL.revokeObjectURL(url);
 }
 
+// Download markdown handler function
+function downloadMarkdown(): void {
+    if (!apiResponse) {
+        showError('No data available to download');
+        return;
+    }
+    
+    // Convert to markdown format
+    const markdown = convertToMarkdown(apiResponse.data.slide_data);
+    
+    // Create download link
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lecture-results-${new Date().getTime()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Convert slide data to markdown format
+function convertToMarkdown(slideData: any): string {
+    const results: string[] = [];
+    
+    // Sort by slide number
+    const sortedSlides = Object.entries(slideData).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+    
+    for (const [slideNum, slideInfo] of sortedSlides as [string, any][]) {
+        const slideNumber = slideInfo.slide_number;
+        const slideContent = cleanSlideContent(slideInfo.content);
+        const slideTranscripts = slideInfo.transcripts.join('\n');
+        
+        let result = `slide number:\n${slideNumber}\n\nslide_content:\n${slideContent}\n\nslide_transcripts:\n${slideTranscripts}`;
+        result += '\n' + '_'.repeat(80) + '\n';
+        results.push(result);
+    }
+    
+    return results.join('\n');
+}
+
+// Clean slide content formatting
+function cleanSlideContent(content: string): string {
+    return content.split('\n')
+        .map(line => '\n' + line.trim())
+        .join('');
+}
+
 // Initial button handlers (will be overridden when results are shown)
 if (resetBtn) resetBtn.addEventListener('click', resetForm);
 if (errorResetBtn) errorResetBtn.addEventListener('click', resetForm);
@@ -210,15 +261,18 @@ function showResults(data: ProcessLectureResponse): void {
     const actionButtons = document.createElement('div');
     actionButtons.className = 'action-buttons';
     actionButtons.innerHTML = `
-        <button id="downloadBtn" class="download-btn">Download JSON Results</button>
+        <button id="downloadBtn" class="download-btn">Download JSON</button>
+        <button id="downloadMdBtn" class="download-btn">Download Markdown</button>
         <button id="resetBtn" class="reset-btn">Process Another File</button>
     `;
     resultsSection.appendChild(actionButtons);
     
     // Re-attach event listeners for buttons
     const downloadButton = document.getElementById('downloadBtn') as HTMLButtonElement;
+    const downloadMdButton = document.getElementById('downloadMdBtn') as HTMLButtonElement;
     const resetButton = document.getElementById('resetBtn') as HTMLButtonElement;
     downloadButton.addEventListener('click', downloadResults);
+    downloadMdButton.addEventListener('click', downloadMarkdown);
     resetButton.addEventListener('click', resetForm);
 }
 

@@ -1,22 +1,17 @@
-# Core PDF processing with Docling
 docling>=1.0.0
 
-# PDF to image conversion
 pdf2image>=1.16.0
 Pillow>=10.0.0
 
-# Image extraction from PDFs
 PyMuPDF>=1.23.0
 
-# Note: To use GPU, install PyTorch with CUDA support:
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 transformers>=4.35.0
 torch>=2.0.0
 accelerate>=0.24.0
 
 sentence_transformers
 
-# FastAPI and server
 fastapi>=0.104.0
 uvicorn[standard]==0.27.0
 python-multipart>=0.0.6
+einops

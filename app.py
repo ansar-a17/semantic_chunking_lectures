@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import tempfile
 import os
-from pathlib import Path
+import json
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from src.extractors.page_extractor import PageContentExtractor
 from src.processors.transcriptions import process_transcripts
@@ -17,10 +20,43 @@ from src.core.embedding import model
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Global variables for vision model
+vision_model = None
+vision_tokenizer = None
+vision_device = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler - loads vision model at startup"""
+    global vision_model, vision_tokenizer, vision_device
+    
+    logger.info(f"CUDA available: {torch.cuda.is_available()}")
+    vision_device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Using device for vision model: {vision_device}")
+    
+    model_id = "vikhyatk/moondream2"
+    logger.info("Loading Moondream2 vision model...")
+    try:
+        vision_model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+        ).to(vision_device)
+        
+        vision_tokenizer = AutoTokenizer.from_pretrained(model_id)
+        logger.info("Vision model loaded successfully!")
+    except Exception as e:
+        logger.error(f"Failed to load vision model: {e}")
+        logger.warning("Vision model endpoints will not be available")
+    
+    yield
+    
+    logger.info("Shutting down...")
+
 app = FastAPI(
     title="PDF Lecture Parser API",
     description="API for processing lecture PDFs and matching them with transcripts",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -99,7 +135,12 @@ async def process_lecture(
         
         # Step 1: Extract slides from PDF
         logger.info("Step 1: Extracting slides from PDF")
-        extractor = PageContentExtractor()
+        if vision_model is not None:
+            logger.info("Vision model available - will analyze images in slides")
+            extractor = PageContentExtractor(vision_model=vision_model, vision_tokenizer=vision_tokenizer, vision_device=vision_device)
+        else:
+            logger.warning("Vision model not available - images will not be analyzed")
+            extractor = PageContentExtractor()
         pages = extractor.extract_pages(temp_pdf_path)
         logger.info(f"Extracted {len(pages)} pages")
         
@@ -188,6 +229,76 @@ async def process_lecture(
                     logger.warning(f"Could not delete temporary transcript file: {e}")
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/convert-to-markdown")
+async def convert_to_markdown(
+    json_file: UploadFile = File(..., description="JSON file from process-lecture endpoint")
+):
+    """
+    Convert a JSON result file to markdown format.
+    
+    Parameters:
+    - json_file: JSON file from the process-lecture endpoint
+    
+    Returns:
+    - Markdown formatted content
+    """
+    try:
+        content = await json_file.read()
+        data = json.loads(content.decode('utf-8'))
+        
+        if not data.get("success"):
+            raise HTTPException(status_code=400, detail="Invalid JSON format or processing failed")
+        
+        slide_data = data.get("data", {}).get("slide_data", {})
+        
+        if not slide_data:
+            raise HTTPException(status_code=400, detail="No slide data found in JSON")
+        
+        # Convert dictionary to markdown
+        markdown_content = convert_slide_data_to_markdown(slide_data)
+        
+        return {
+            "success": True,
+            "markdown": markdown_content,
+            "message": f"Successfully converted {len(slide_data)} slides to markdown"
+        }
+    
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON file")
+    except Exception as e:
+        logger.error(f"Error converting to markdown: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error converting to markdown: {str(e)}")
+
+
+def _clean_slide_content(content: str) -> str:
+    """Clean slide content formatting."""
+    result = ""
+    for line in content.split("\n"):
+        result += "\n"
+        result += line.strip()
+    return result
+
+
+def convert_slide_data_to_markdown(slide_data: Dict) -> str:
+    """
+    Convert slide data dictionary to markdown format.
+    
+    Args:
+        slide_data: Dictionary with slide data in format {slide_num: {"slide_number": int, "content": str, "transcripts": list}}
+    
+    Returns:
+        Markdown formatted string
+    """
+    results = []
+    
+    for slide_num in sorted(slide_data.keys(), key=lambda x: int(x)):
+        slide_info = slide_data[slide_num]
+        slide_number = slide_info["slide_number"]
+        slide_content = _clean_slide_content(slide_info["content"])
+        slide_transcripts = "\n".join(slide_info["transcripts"])
+        
+        result = f"slide number:\n{slide_number}\n\nslide_content:\n{slide_content}\n\nslide_transcripts:\n{slide_transcripts}"
+        result += "\n" + "_"*80 + "\n"
+        results.append(result)
+    
+    return "\n".join(results)
