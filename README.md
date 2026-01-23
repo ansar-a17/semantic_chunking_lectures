@@ -2,7 +2,7 @@
 
 To build high-quality study material from lecture material, both the slides and the lecturer's words are important. Either one on it's own is not sufficient. At Tilburg University, we get access to the lecture slides and the lecture recording, which allows us to download the auto-generated transcripts of the lecture.
 
-I built this semantic chunking algorithm to match the unstructured transcripts.txt with the lecture slides. Once this program has successfully chunked the data, it can be used for various purposes and you are guaranteed to have captured everything the lecture consisted of. This program effectively reconstructs what the teacher said while a specific slide was being shown.
+I built this semantic chunking algorithm to match the unstructured transcripts.txt with the lecture slides. This program parses the lecture slides, uses a vision model to generate descriptions for the images, and matches the lecture transcripts to the slide content using embeddings. Once this program has successfully chunked the data, it can be used for various purposes and you are guaranteed to have captured everything the lecture consisted of. This program effectively reconstructs what the teacher said while a specific slide was being shown.
 
 ## Features
 
