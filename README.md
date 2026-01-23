@@ -42,6 +42,7 @@ I built this semantic chunking algorithm to match the unstructured transcripts.t
    ```bash
    docker-compose down
    ```
+Note: The first build can take quite some time! Took around 15m for me.
 
 ## API Usage
 

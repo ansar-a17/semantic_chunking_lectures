@@ -2,7 +2,7 @@ from typing import Dict, Optional, Any
 from docling.document_converter import DocumentConverter
 from PIL import Image
 import io
-import fitz  # PyMuPDF
+import fitz
 import logging
 
 logger = logging.getLogger(__name__)
