@@ -6,7 +6,6 @@ Pillow>=10.0.0
 PyMuPDF>=1.23.0
 
 transformers>=4.35.0
-torch>=2.0.0
 accelerate>=0.24.0
 
 sentence_transformers

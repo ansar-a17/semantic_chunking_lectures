@@ -82,21 +82,21 @@ async def root():
 @app.post("/process-lecture")
 async def process_lecture(
     pdf_file: UploadFile = File(..., description="PDF file containing lecture slides"),
-    transcript_files: List[UploadFile] = File(..., description="One or more text files containing transcripts"),
+    transcript_files: List[UploadFile] = File(default=[], description="Optional: One or more text files containing transcripts (will be merged if multiple)"),
     window_size: int = Form(5),
     similarity_threshold: float = Form(0.60)
 ):
     """
-    Process a lecture PDF and transcript file(s) to match transcripts with slides.
+    Process a lecture PDF and optionally match with transcript file(s).
     
     Parameters:
     - pdf_file: PDF file with lecture slides
-    - transcript_files: One or more text files with transcripts (will be merged if multiple)
-    - window_size: Window size for chunk matching (default: 5)
-    - similarity_threshold: Similarity threshold for matching (default: 0.60)
+    - transcript_files: Optional - One or more text files with transcripts (will be merged if multiple)
+    - window_size: Window size for chunk matching (default: 5, only used with transcripts)
+    - similarity_threshold: Similarity threshold for matching (default: 0.60, only used with transcripts)
     
     Returns:
-    - slide_data: Dictionary mapping slide numbers to content and transcripts
+    - slide_data: Dictionary mapping slide numbers to content and optionally transcripts
     - statistics: Processing statistics
     """
     
@@ -104,9 +104,9 @@ async def process_lecture(
     if not pdf_file.filename.endswith('.pdf'):
         raise HTTPException(status_code=400, detail="PDF file must have .pdf extension")
     
-    # Validate number of transcript files
-    if len(transcript_files) < 1 or len(transcript_files) > 2:
-        raise HTTPException(status_code=400, detail=f"Please provide 1 or 2 transcript files. Received {len(transcript_files)} files.")
+    # Validate number of transcript files (0-2 allowed)
+    if len(transcript_files) > 2:
+        raise HTTPException(status_code=400, detail=f"Please provide 0, 1, or 2 transcript files. Received {len(transcript_files)} files.")
     
     # Validate all transcript files
     for transcript_file in transcript_files:
@@ -147,44 +147,60 @@ async def process_lecture(
         if not pages:
             raise HTTPException(status_code=400, detail="No pages could be extracted from PDF")
         
-        # Step 2: Process transcripts and generate embeddings
-        logger.info(f"Step 2: Processing {len(temp_transcript_paths)} transcript file(s)")
-        lines = process_transcripts(temp_transcript_paths)
-        transcripts = build_transcripts(lines)
-        logger.info(f"Processed {len(transcripts)} transcript sentences from {len(temp_transcript_paths)} file(s)")
+        # Check if transcripts are provided
+        has_transcripts = len(temp_transcript_paths) > 0
         
-        if not transcripts:
-            raise HTTPException(status_code=400, detail="No transcripts could be processed from file")
-        
-        # Step 3: Match transcripts to slides and create chunks
-        logger.info("Step 3: Matching transcripts to slides")
-        chunker = TranscriptSlideChunker(model)
-        chunks = chunker.build_chunks_with_windows(
-            transcript_sentences=transcripts,
-            slide_pages=pages,
-            window_size=window_size,
-            similarity_threshold=similarity_threshold
-        )
-        
-        logger.info(f"Created {len(chunks)} chunks")
-        
-        # Step 4: Build simple dictionary structure
-        logger.info("Step 4: Building data structure")
-        slide_data, unmatched_transcripts = chunker.build_simple_dict(chunks, pages, lines)
-        
-        # Check if any transcripts were matched
-        matched_slides = sum(1 for _, (_, transcripts) in slide_data.items() if len(transcripts) > 0)
-        total_transcripts = sum(len(transcripts) for _, (_, transcripts) in slide_data.items())
-        
-        if matched_slides == 0:
-            logger.warning("No transcripts were matched to any slides. The similarity threshold may be too high or the content doesn't match.")
-        
-        logger.info(f"Matched {total_transcripts} transcript segments, {len(unmatched_transcripts)} unmatched")
+        if has_transcripts:
+            # Step 2: Process transcripts and generate embeddings
+            logger.info(f"Step 2: Processing {len(temp_transcript_paths)} transcript file(s)")
+            lines = process_transcripts(temp_transcript_paths)
+            transcripts = build_transcripts(lines)
+            logger.info(f"Processed {len(transcripts)} transcript sentences from {len(temp_transcript_paths)} file(s)")
+            
+            if not transcripts:
+                raise HTTPException(status_code=400, detail="No transcripts could be processed from file")
+            
+            # Step 3: Match transcripts to slides and create chunks
+            logger.info("Step 3: Matching transcripts to slides")
+            chunker = TranscriptSlideChunker(model)
+            chunks = chunker.build_chunks_with_windows(
+                transcript_sentences=transcripts,
+                slide_pages=pages,
+                window_size=window_size,
+                similarity_threshold=similarity_threshold
+            )
+            
+            logger.info(f"Created {len(chunks)} chunks")
+            
+            # Step 4: Build simple dictionary structure
+            logger.info("Step 4: Building data structure")
+            slide_data, unmatched_transcripts = chunker.build_simple_dict(chunks, pages, lines)
+            
+            # Check if any transcripts were matched
+            matched_slides = sum(1 for _, (_, transcripts) in slide_data.items() if len(transcripts) > 0)
+            total_transcripts = sum(len(transcripts) for _, (_, transcripts) in slide_data.items())
+            
+            if matched_slides == 0:
+                logger.warning("No transcripts were matched to any slides. The similarity threshold may be too high or the content doesn't match.")
+            
+            logger.info(f"Matched {total_transcripts} transcript segments, {len(unmatched_transcripts)} unmatched")
+        else:
+            # No transcripts provided - build structure with only slide content
+            logger.info("Step 2: No transcript files provided - building slide-only data structure")
+            slide_data = {page_num: (content, []) for page_num, content in pages.items()}
+            unmatched_transcripts = []
+            matched_slides = 0
+            total_transcripts = 0
         
         # Prepare response
+        if has_transcripts:
+            message = f"Lecture processed successfully. Matched {total_transcripts} transcript segments to {matched_slides} of {len(pages)} slides. {len(unmatched_transcripts)} transcripts unmatched."
+        else:
+            message = f"Lecture processed successfully. Extracted {len(pages)} slides (no transcripts provided)."
+        
         response_data = {
             "success": True,
-            "message": f"Lecture processed successfully. Matched {total_transcripts} transcript segments to {matched_slides} of {len(pages)} slides. {len(unmatched_transcripts)} transcripts unmatched.",
+            "message": message,
             "data": {
                 "slide_data": {
                     str(slide_num): {
@@ -198,7 +214,8 @@ async def process_lecture(
                 "parameters": {
                     "window_size": window_size,
                     "similarity_threshold": similarity_threshold
-                }
+                },
+                "has_transcripts": has_transcripts
             }
         }
         
@@ -322,10 +339,16 @@ def convert_slide_data_to_markdown(slide_data: Dict) -> str:
         slide_info = slide_data[slide_num]
         slide_number = slide_info["slide_number"]
         slide_content = _clean_slide_content(slide_info["content"])
-        slide_transcripts = "\n".join(slide_info["transcripts"])
+        slide_transcripts = slide_info["transcripts"]
         
         # Format with proper markdown headings (H1 for slide number, H2 for sections)
-        result = f"# slide number {slide_number}\n\n## slide_content\n\n{slide_content}\n\n## slide_transcripts\n{slide_transcripts}"
+        result = f"# slide number {slide_number}\n\n## slide_content\n\n{slide_content}"
+        
+        # Only add transcript section if transcripts exist
+        if slide_transcripts and len(slide_transcripts) > 0:
+            transcripts_text = "\n".join(slide_transcripts)
+            result += f"\n\n## slide_transcripts\n{transcripts_text}"
+        
         result += "\n" + "_"*80 + "\n"
         results.append(result)
     

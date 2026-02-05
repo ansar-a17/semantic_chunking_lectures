@@ -11,7 +11,7 @@
     <div class="container">
         <header>
             <h1>TiU Lecture Chunker</h1>
-            <p class="subtitle">Upload the lecture PDF and transcripts.txt to get structured chunks for LLMs</p>
+            <p class="subtitle">Upload lecture PDF and optionally transcripts.txt to get structured chunks for LLMs</p>
         </header>
 
         <div class="upload-section">
@@ -32,7 +32,7 @@
 
                 <div class="file-input-group">
                     <label for="transcriptFile">
-                        <span class="label-text">Transcript Text File(s) - Select 1 or 2 files</span>
+                        <span class="label-text">Transcript Text File(s) (Optional) - Select 0, 1, or 2 files</span>
                         <span class="file-info" id="transcriptFileInfo">No file chosen</span>
                     </label>
                     <input 
@@ -41,7 +41,6 @@
                         name="transcript_files" 
                         accept=".txt" 
                         multiple
-                        required
                     >
                 </div>
 

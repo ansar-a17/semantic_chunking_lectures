@@ -2,15 +2,21 @@
 
 To build high-quality study material from lecture material, both the slides and the lecturer's words are important. Either one on it's own is not sufficient. At Tilburg University, we get access to the lecture slides and the lecture recording, which allows us to download the auto-generated transcripts of the lecture.
 
-I built this semantic chunking algorithm to match the unstructured transcripts.txt with the lecture slides. This program parses the lecture slides, uses a vision model to generate descriptions for the images, and matches the lecture transcripts to the slide content using embeddings. Once this program has successfully chunked the data, it can be used for various purposes and you are guaranteed to have captured everything the lecture consisted of. This program effectively reconstructs what the teacher said while a specific slide was being shown.
+This semantic chunking algorithm supports two use cases:
+
+**Use Case 1: Slides + Transcripts (Full Semantic Matching)**
+Match unstructured transcripts.txt with lecture slides. The program parses the lecture slides, uses a vision model to generate descriptions for the images, and matches the lecture transcripts to the slide content using embeddings. This effectively reconstructs what the teacher said while a specific slide was being shown.
+
+**Use Case 2: Slides Only (Content Extraction)**
+Process slides.pdf without transcripts to extract text content and generate image descriptions using vision models. Useful when transcripts are unavailable or when you only need structured slide content.
 
 ## Features
 
 - Extract text and images from PDF lecture slides using Docling
 - Vision-based image analysis with Moondream2 model
-- Semantic matching using transformer embeddings
-- Track unmatched transcript segments
-- Export to markdown format
+- **Optional:** Semantic matching of transcripts using transformer embeddings
+- **Optional:** Track unmatched transcript segments
+- Export to JSON or markdown format
 - Configurable similarity thresholds and window sizes
 - Fully containerized with Docker
 - REST API with modern web interface
@@ -53,12 +59,12 @@ Note: The first build can take quite some time! Took around 15m for me.
 **POST** `/process-lecture`
 
 **Parameters:**
-- `pdf_file` (file): PDF containing lecture slides
-- `transcript_files` (file[]): One or two text files with transcripts
-- `window_size` (int, optional): Window size for matching (default: 5)
-- `similarity_threshold` (float, optional): Matching threshold 0-1 (default: 0.60)
+- `pdf_file` (file, required): PDF containing lecture slides
+- `transcript_files` (file[], optional): Zero, one, or two text files with transcripts
+- `window_size` (int, optional): Window size for matching (default: 5, only used with transcripts)
+- `similarity_threshold` (float, optional): Matching threshold 0-1 (default: 0.60, only used with transcripts)
 
-**Example with curl:**
+**Example with curl (with transcripts):**
 ```bash
 curl -X POST "http://localhost:8000/process-lecture?window_size=5&similarity_threshold=0.60" \
   -F "pdf_file=@lecture.pdf" \
@@ -66,11 +72,17 @@ curl -X POST "http://localhost:8000/process-lecture?window_size=5&similarity_thr
   -F "transcript_files=@transcript2.txt"
 ```
 
-**Response:**
+**Example with curl (slides only, no transcripts):**
+```bash
+curl -X POST "http://localhost:8000/process-lecture" \
+  -F "pdf_file=@lecture.pdf"
+```
+
+**Response (with transcripts):**
 ```json
 {
   "success": true,
-  "message": "Lecture processed successfully...",
+  "message": "Lecture processed successfully. Matched 45 transcript segments to 8 of 10 slides. 5 transcripts unmatched.",
   "data": {
     "slide_data": {
       "1": {
@@ -83,7 +95,31 @@ curl -X POST "http://localhost:8000/process-lecture?window_size=5&similarity_thr
     "parameters": {
       "window_size": 5,
       "similarity_threshold": 0.60
-    }
+    },
+    "has_transcripts": true
+  }
+}
+```
+
+**Response (slides only, no transcripts):**
+```json
+{
+  "success": true,
+  "message": "Lecture processed successfully. Extracted 10 slides (no transcripts provided).",
+  "data": {
+    "slide_data": {
+      "1": {
+        "slide_number": 1,
+        "content": "Slide content with image analysis...",
+        "transcripts": []
+      }
+    },
+    "unmatched_transcripts": [],
+    "parameters": {
+      "window_size": 5,
+      "similarity_threshold": 0.60
+    },
+    "has_transcripts": false
   }
 }
 ```
@@ -132,12 +168,17 @@ pdf_parser_opensource/
 
 ## Configuration
 
-Adjust matching behavior by modifying these parameters:
+Adjust matching behavior by modifying these parameters (only applicable when using transcripts):
 
 - **window_size**: Number of transcript sentences to consider together (higher = more context)
 - **similarity_threshold**: Minimum similarity score for matching (0.0-1.0, higher = stricter)
 
 ## Troubleshooting
+
+**Processing slides without transcripts:**
+- Simply omit the transcript files when uploading
+- The program will extract slide content and image descriptions only
+- Output will contain empty transcript arrays for each slide
 
 **No transcripts matched to slides:**
 - Try lowering `similarity_threshold` (e.g., 0.40-0.50)

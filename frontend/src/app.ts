@@ -82,13 +82,9 @@ uploadForm.addEventListener('submit', async (e) => {
         return;
     }
     
-    if (!transcriptFileInput.files || transcriptFileInput.files.length === 0) {
-        showError('Please select at least one transcript file');
-        return;
-    }
-    
-    if (transcriptFileInput.files.length > 2) {
-        showError('Please select only 1 or 2 transcript files');
+    // Transcript files are optional, but limit to 2 if provided
+    if (transcriptFileInput.files && transcriptFileInput.files.length > 2) {
+        showError('Please select at most 2 transcript files');
         return;
     }
     
@@ -96,9 +92,11 @@ uploadForm.addEventListener('submit', async (e) => {
     const formData = new FormData();
     formData.append('pdf_file', pdfFileInput.files[0]);
     
-    // Append all transcript files
-    for (let i = 0; i < transcriptFileInput.files.length; i++) {
-        formData.append('transcript_files', transcriptFileInput.files[i]);
+    // Append all transcript files (if any)
+    if (transcriptFileInput.files) {
+        for (let i = 0; i < transcriptFileInput.files.length; i++) {
+            formData.append('transcript_files', transcriptFileInput.files[i]);
+        }
     }
     
     formData.append('window_size', windowSizeInput.value);
@@ -188,10 +186,17 @@ function convertToMarkdown(slideData: any): string {
     for (const [slideNum, slideInfo] of sortedSlides as [string, any][]) {
         const slideNumber = slideInfo.slide_number;
         const slideContent = cleanSlideContent(slideInfo.content);
-        const slideTranscripts = slideInfo.transcripts.join('\n');
+        const slideTranscripts = slideInfo.transcripts;
         
         // Format with proper markdown headings (H1 for slide number, H2 for sections)
-        let result = `# slide number ${slideNumber}\n\n## slide_content\n\n${slideContent}\n\n## slide_transcripts\n${slideTranscripts}`;
+        let result = `# slide number ${slideNumber}\n\n## slide_content\n\n${slideContent}`;
+        
+        // Only add transcript section if transcripts exist
+        if (slideTranscripts && slideTranscripts.length > 0) {
+            const transcriptsText = slideTranscripts.join('\n');
+            result += `\n\n## slide_transcripts\n${transcriptsText}`;
+        }
+        
         result += '\n' + '_'.repeat(80) + '\n';
         results.push(result);
     }
