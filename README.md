@@ -1,5 +1,7 @@
 # Semantic chunking of slides.pdf and transcripts.txt
 
+## Motivation
+
 To build high-quality study material from lecture material, both the slides and the lecturer's words are important. Either one on it's own is not sufficient. At Tilburg University, we get access to the lecture slides and the lecture recording, which allows us to download the auto-generated transcripts of the lecture.
 
 This semantic chunking algorithm supports two use cases:
@@ -28,7 +30,7 @@ Process slides.pdf without transcripts to extract text content and generate imag
   - Python 3.9+
   - Node.js 16+
 
-## Quick Start with Docker
+## Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -52,7 +54,7 @@ Process slides.pdf without transcripts to extract text content and generate imag
    ```
 Note: The first build can take quite some time! Took around 15m for me.
 
-## API Usage
+## Usage
 
 ### Process Lecture Endpoint
 
@@ -201,6 +203,10 @@ Adjust matching behavior by modifying these parameters (only applicable when usi
 - Check the `unmatched_transcripts` field in the response
 - These segments didn't meet the similarity threshold
 - Consider lowering threshold or reviewing transcript quality
+
+## Contributing
+
+If you'd like to contribute, please fork the repository and open a pull request to the `main` branch.
 
 ## License
 
